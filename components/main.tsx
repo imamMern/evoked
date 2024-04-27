@@ -11,7 +11,7 @@ import EmblaSlider from './Embla'
 import Pricing from './Pricing'
 import  getProducts  from "../app/lib/shopify"
 
-const Main = async ({products} : any) => {
+const Main = async () => {
   const json = await getProducts();
   console.log("json", json)
   return (
