@@ -9,8 +9,11 @@ import Accordion from './Accordion'
 import Story from './Story'
 import EmblaSlider from './Embla'
 import Pricing from './Pricing'
+import  getProducts  from "../app/lib/shopify"
 
-const Main = () => {
+const Main = async ({products} : any) => {
+  const json = await getProducts();
+  console.log("json", json)
   return (
     <div>
       <DarkModeProvider>
