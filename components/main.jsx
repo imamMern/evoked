@@ -1,4 +1,4 @@
-import React from 'react'
+import React  from 'react'
 import Navbar from './navbar'
 import Hero from './hero'
 import { DarkModeProvider } from '@/utils/DarkModeContext'
@@ -9,17 +9,24 @@ import Accordion from './Accordion'
 import Story from './Story'
 import EmblaSlider from './Embla'
 import Pricing from './Pricing'
-import  getProducts  from "../app/lib/shopify"
+import { getAllDeProducts } from "../app/lib/shopify"
 
-const Main = async () => {
-  const json = await getProducts();
-  console.log("json", json)
+const Main =  async () => {
+  const jsonX = await getAllDeProducts();
+  console.log("product", jsonX)
   return (
     <div>
       <DarkModeProvider>
           <Navbar />
         <Hero />
         <Carousel />
+        
+        <ul>
+        {jsonX.data?.products?.edges.map((product) => (
+          
+          <li key={product.node.title}>dsadsad</li>
+        ))}
+        </ul>
         <EvokedBrand />
         <OtherBrands />
         <Pricing/>
