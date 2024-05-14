@@ -1,7 +1,7 @@
 "use client"
 
 import { useDarkMode } from "@/utils/DarkModeContext";
-import '@/app/globals.css'
+
 import useEmblaCarousel from 'embla-carousel-react'
 import transform from '@/public/assets/bottleReview.png'
 import star from '@/public/assets/blackStar.svg'
@@ -14,7 +14,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
-import '@/app/globals.css'
 const Review = () => {
   
   const { isDarkMode, toggleDarkMode } = useDarkMode();

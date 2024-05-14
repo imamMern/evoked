@@ -5,12 +5,14 @@ import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
+import { useRouter } from 'next/navigation'
+import Router from 'next/router'
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/scrollbar';
-import '@/app/globals.css'
+
 import { usePricing } from "@/utils/PricingContext";
 import perfume from '@/public/assets/perfumeCollect.png'
 import blue from '@/public/assets/blue.png'
@@ -19,11 +21,29 @@ import videoDark from '@/public/assets/dark-video.png'
 import prev from '@/public/assets/prev.svg'
 import next from '@/public/assets/next.svg'
 import addSet from '@/public/assets/addSet.svg'
-const ProductSlider = () => {
+import { getProduct, updateCart, addToCart } from "../../utils/shopify"
+
+
+export default function ProductSlider ({products, collections}) {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
-    const {show1, setShow1,selectedPlan, setSelectedPlan,selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems  } = usePricing();
+    const {show1, setShow1,selectedPlan, setSelectedPlan,selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, cartItems, setCartItems  } = usePricing();
     const [dropdownOpen1, setDropdownOpen1] = useState(false);
     const [dropdownOpen2, setDropdownOpen2] = useState(false);
+    const [initCollection, setInitCollection] = useState("Men's Perfumes");
+    const [listProducts, setListProducts] = useState([]);
+    const collectionsData = collections.collections.edges.map((x) => { return x.node });
+    const [checkout, setCheckout] = useState(false);
+
+    const RenderProducts = () => {
+      const data =  collectionsData.find((x) => {
+          if(x.title == initCollection) {
+            return x.products.edges.map((d) => {return d.node})
+          }
+          
+        })
+        return data
+    }
+
     const toggleDropdown1 = () => {
       setDropdownOpen1(!dropdownOpen1);
     };
@@ -32,15 +52,20 @@ const ProductSlider = () => {
       setDropdownOpen2(!dropdownOpen2);
     };
 
-   
-  
-  
-    
-  
-  
-    const handleButtonClick = (button) => {
+   const handleButtonClick = (button, collectionTitle) => {
         setSelectedButton(button);
+        setInitCollection(collectionTitle)
       };
+    useEffect(() => {
+      const productsData = RenderProducts();
+      setListProducts(productsData);
+  
+    },[initCollection])
+
+    useEffect(() => {
+      console.log("List of products updated:", listProducts);
+   },[listProducts])
+    
       const Links = [
         {link:perfume , link2:  blue , link3: brown},
         {link:perfume , link2:  blue , link3: brown},
@@ -60,8 +85,8 @@ const ProductSlider = () => {
         // Update the currentIndex based on the realIndex provided by Swiper
         setCurrentIndex(swiper.realIndex);
       };
-      const handleAddToSet = (perfume) => {
-        console.log(perfume)
+      const handleAddToSet = async(perfume, items) => {
+        
         // Determine the maximum limit based on the selected plan
         let maxLimit = 0;
         if (selectedPlan === '1 Perfume') {
@@ -71,21 +96,33 @@ const ProductSlider = () => {
         } else if (selectedPlan === '3 Perfumes') {
             maxLimit = numberOfBoxes;
         }
-    
-        // Check if the number of selected images exceeds the maximum limit
+        
         if (selectedImages.length < maxLimit) {
-            // Add the new image
-            setSelectedImages(prevImages => [...prevImages, perfume]);
-        } else {
-            // Display an alert if the maximum limit of images is reached
-            alert('You have reached the maximum limit of Perfumes.');
-        }
+            
+            setSelectedImages(prevImages => [...prevImages, items.featuredImage.url]);
+            let cartId = window.sessionStorage.getItem("cartId");
+              
+                if (cartId) {
+                  await updateCart(cartId, items.variants.edges[0].node.id, "1");
+                  setCheckout(true);
+                } else {
+                  let data = await addToCart(items.variants.edges[0].node.id, "1");
+                  cartId = data.data.cartCreate?.cart?.id;
+                  let checkoutUrl = data.data.cartCreate?.cart.checkoutUrl
+                  setCartItems({"checkOutUrl" : checkoutUrl, "isCheckout" : true})
+                  window.sessionStorage.setItem("cartId", cartId);
+                  setCheckout(true);
+                }
+          
+            } else {
+                // Display an alert if the maximum limit of images is reached
+                alert('You have reached the maximum limit of Perfumes.');
+            }
         
     
         console.log('clicked');
     };
       
-
     
     const handleAddToSetOneTime = (perfume) => {
       // Calculate the number of selected boxes
@@ -104,7 +141,11 @@ const ProductSlider = () => {
           setSelectedImages(prevImages => [...prevImages, perfume]);
       }
     }
-    
+
+    useEffect(() => {
+      console.log("dataProduct", cartItems)
+    },[cartItems])
+
 
   return (
     <>
@@ -115,20 +156,20 @@ const ProductSlider = () => {
               <div className="lg:block flex justify-center">
             <span className={`xxl:ml-0 ml-0 lg:ml-[50px] gap-x-[10px] inline-flex items-start gap-2.5 px-2.5 py-2 rounded-[var(--lg,12px)] border ${isDarkMode ? 'border-white' : 'border-[color:var(--black,#171717)]'} border-solid`}>
       <button
-        onClick={() => handleButtonClick(1)}
+        onClick={() => handleButtonClick(1, "Men's Perfumes")}
         className={`${selectedButton === 1 ? ` flex uppercase justify-center items-center gap-2.5 px-5 py-2.5 rounded-[var(--lg,12px)] text-[16px] lg:text-[16px] 2xl:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-primary bg-white' : 'bg-[#171717] text-white'}` : ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[var(--lg,12px)] uppercase text-[16px] lg:text-[16px] 2xl:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white bg-transparent' : 'bg-transparent text-[#28282A]'}`}`}
       >
         Men
               </button>
              
       <button
-        onClick={() => handleButtonClick(2)}
+        onClick={() => handleButtonClick(2, "Women's Perfumes")}
         className={`${selectedButton === 2 ? ` flex uppercase justify-center items-center gap-2.5 px-5 py-2.5 rounded-[var(--lg,12px)] text-[16px] lg:text-[16px] 2xl:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-primary bg-white' : 'bg-[#171717] text-white'}` : ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[var(--lg,12px)] uppercase text-[16px] lg:text-[16px] 2xl:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white bg-transparent' : 'bg-transparent text-[#28282A]'}`}`}
       >
         WOMEN
       </button>
       <button
-        onClick={() => handleButtonClick(3)}
+        onClick={() => handleButtonClick(3, "Unisex Perfumes")}
         className={`${selectedButton === 3 ? ` flex uppercase justify-center items-center gap-2.5 px-5 py-2.5 rounded-[var(--lg,12px)] text-[16px] lg:text-[16px] 2xl:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-primary bg-white' : 'bg-[#171717] text-white'}` : ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[var(--lg,12px)] uppercase text-[16px] lg:text-[16px] 2xl:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white bg-transparent' : 'bg-transparent text-[#28282A]'}`}`}
       >
         UNISEX
@@ -144,41 +185,41 @@ const ProductSlider = () => {
                         prevEl: '.swiper-button-prev1',
                         nextEl: '.swiper-button-next1',
                       }}
-        spaceBetween={0}
-        slidesPerView= 'auto'
-            loop={true}
-            allowTouchMove={true}
-            centeredSlides={true}
-            scrollbar={{ draggable: true }}
-            mousewheel={true}
-        className="w-full h-full"
-        modules={[Navigation]}
-        pagination={{ clickable: true }}
-        onSlideChange={(swiper) => handleSlideChange(swiper)}
-                        initialSlide={currentIndex}
-                        breakpoints={{
-                          640: {
-                            slidesPerView: 2,
-                            spaceBetween: 20,
-                            
-                        },
-                        
-                          768: {
-                            slidesPerView: 3,
-                            spaceBetween: 20,
-                          },
-                          
-                          1024: {
-                            slidesPerView: 4,
-                            spaceBetween: 20,
-                          },
-                          1920: {
-                            slidesPerView: 5,
-                            spaceBetween: 20,
-                          },
-                        }}                
-        >
-                      {Links.map((item, index) => {
+                      spaceBetween={0}
+                      slidesPerView= 'auto'
+                          loop={true}
+                          allowTouchMove={true}
+                          centeredSlides={true}
+                          scrollbar={{ draggable: true }}
+                          mousewheel={true}
+                      className="w-full h-full"
+                      modules={[Navigation]}
+                      pagination={{ clickable: true }}
+                      onSlideChange={(swiper) => handleSlideChange(swiper)}
+                                      initialSlide={currentIndex}
+                                      breakpoints={{
+                                        640: {
+                                          slidesPerView: 2,
+                                          spaceBetween: 20,
+                                          
+                                      },
+                                      
+                                        768: {
+                                          slidesPerView: 3,
+                                          spaceBetween: 20,
+                                        },
+                                        
+                                        1024: {
+                                          slidesPerView: 4,
+                                          spaceBetween: 20,
+                                        },
+                                        1920: {
+                                          slidesPerView: 5,
+                                          spaceBetween: 20,
+                                        },
+                                      }}                
+                      >
+                      {listProducts?.products?.edges?.length > 0 && listProducts.products.edges.map((item, index) => {
                         
                          let maxLimit = 0;
                          if (selectedPlan === '1 Perfume') {
@@ -192,11 +233,11 @@ const ProductSlider = () => {
                         }
                      
                       return (
-              <SwiperSlide key={selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3} className={`lg:w-full sm:w-[100%] md:w-[100%] w-[70%]  ${index === currentIndex  ? 'focus' : 'blur relative z-[-10]'}`}>
+              <SwiperSlide key={selectedButton == listProducts.title} className={`lg:w-full sm:w-[100%] md:w-[100%] w-[70%]  ${index === currentIndex  ? 'focus' : 'blur relative z-[-10]'}`}>
                 <div className={`flex relative flex-col select-none items-center gap-[25px]  rounded-[var(--md,8px)]  ${index === currentIndex ? `border ${isDarkMode ? 'border-white' : 'border-[color:var(--black,#171717)]'} border-solid px-20 py-10` : 'px-[30px] py-[20px]'}`}>
-                  <Image src={selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3} alt="Perfume" className={index === currentIndex ? ' lg:w-[100%] lg:h-[100%] md:w-full md:h-full sm:w-[50%] sm:h-[50%]  w-[90%] h-full' : 'w-[50%] h-[50%] md:w-[40%] md:h-[40%] lg:w-[50%] lg:h-[50%] sm:w-[30%] sm:h-[30%]'} />
+                  <Image width={400} height={450} src={item.node.featuredImage?.url} alt="Perfume" className={index === currentIndex ? ' lg:w-[100%] lg:h-[100%] md:w-full md:h-full sm:w-[50%] sm:h-[50%]  w-[90%] h-full' : 'w-[50%] h-[50%] md:w-[40%] md:h-[40%] lg:w-[50%] lg:h-[50%] sm:w-[30%] sm:h-[30%]'} />
                   <div className="flex flex-col justify-center ">
-                  <span className={`text-center text-[20px] ${isDarkMode ? 'text-white' : 'text-[#28282A]'} lg:text-[28px] not-italic font-medium leading-[120%]`}>Scent 3</span>
+                  <span className={`text-center text-[20px] ${isDarkMode ? 'text-white' : 'text-[#28282A]'} lg:text-[28px] not-italic font-medium leading-[120%]`}>{item.node.title}</span>
                     <div className="flex items-end mt-[10px] justify-center">
                       <div className="flex items-center ">
                       <Star12 color={isDarkMode ? 'white' : '#28282A'} />
@@ -215,32 +256,32 @@ const ProductSlider = () => {
                       <button className={`flex w-48 ${index === currentIndex ? 'block' : 'hidden'}  justify-between items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-center text-[14px] lg:text-lg not-italic leading-[120%] ${dropdownOpen1 ? 'font-bold' : 'font-normal'} `} onClick={toggleDropdown1}>Ingredients <Dropdown color={isDarkMode ? 'white' : '#28282A'} /> </button>
         {index === currentIndex ? dropdownOpen1 && (
           <div className={`flex w-48 lg:text-[14px] text-[12px] mt-[10px] items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-start`}>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Explicabo, alias sit eum delectus itaque minima distinctio facere enim cumque accusamus!
+          {item.node.description}
 </div>
                       ) : dropdownOpen1 && (
                         <div className={`hidden w-48 lg:text-[14px] text-[12px] mt-[10px] items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-start`}>
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Explicabo, alias sit eum delectus itaque minima distinctio facere enim cumque accusamus!
+                        {item.node.description}
               </div>
                                     )}
                       <div className="w-[192px] h-[1px] bg-[#28282A] mx-auto my-[10px] "></div>
         <button className={`flex w-48 ${index === currentIndex ? 'block' : 'hidden'}  justify-between items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-center text-[14px] lg:text-lg not-italic leading-[120%] ${dropdownOpen2 ? 'font-bold' : 'font-normal'}`} onClick={toggleDropdown2}>Notes <Dropdown color={isDarkMode ? 'white' : '#28282A'} /></button>
         {index === currentIndex ? dropdownOpen2 && (
                         <div className={`flex w-48 lg:text-[14px] text-[12px] mt-[10px] items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-start`}>
-                          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Explicabo, alias sit eum delectus itaque minima distinctio facere enim cumque accusamus!
+                          {item.node.description}
           </div>) : dropdownOpen2 && (
                         <div className={`hidden w-48 lg:text-[14px] text-[12px] mt-[10px] items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-start`}>
-                          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Explicabo, alias sit eum delectus itaque minima distinctio facere enim cumque accusamus!
+                          {item.node.description}
           </div>) }
                                 </div>
                                 {
                                   show1 === 1 && (
                                     selectedImages.length < maxLimit ? (
-                                      <button  onClick={() => handleAddToSet(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3)}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)]  mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>
+                                      <button  onClick={() => {handleAddToSet("", item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)]  mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>
                                         Add To Set
                                         <Image src={addSet} alt="Set"/>
                                                        </button>
                                  ) : (
-                                   <button onClick={() => handleAddToSet(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3)}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5 text-center text-[16px] lg:text-2xl not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
+                                   <button onClick={() => {handleAddToSet("", item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5 text-center text-[16px] lg:text-2xl not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
                                                     </button>
                                  )
                                   )
@@ -302,4 +343,4 @@ const ProductSlider = () => {
   )
 }
 
-export default ProductSlider
+//export default ProductSlider

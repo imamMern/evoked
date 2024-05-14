@@ -9,7 +9,6 @@ import { Navigation, Pagination, Controller  } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-import '@/app/globals.css'
 import kit from '@/public/assets/kit.png'
 import videoDark from '@/public/assets/dark-video.png'
 import Image from 'next/image';

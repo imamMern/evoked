@@ -2,15 +2,16 @@
 import { useDarkMode } from "@/utils/DarkModeContext";
 import { Box1, Box2, DownArrow2, Plus, Minus, DownArrow1, Star12, Prev, Next, Dropdown, Remove } from "@/utils/Helpers";
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
-import '@/app/globals.css'
+
 import SubscribeAndSave from "./PricingParts/SubscribeAndSave";
 import { usePricing } from "@/utils/PricingContext";
 import OneTimePurchase from "./PricingParts/OneTimePurchase";
 import ProductSlider from "./PricingParts/ProductSlider";
 import SubscibeAndSaveBundleBox from "./PricingParts/SubscibeAndSaveBundleBox";
 import OneTimePurchaseBundleBox from "./PricingParts/OneTimePurchaseBundleBox";
+import { AppButton } from "./Button"
 
-const Pricing = () => {
+const Pricing = ({products, collections}) => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { show1, setShow1, selectedButton, setSelectedButton, selectedPlan, setSelectedPlan, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector, selectedOptions2, setSelectedOptions2  } = usePricing();
   const [selectedButtonDropdown, setSelectedButtonDropdown] = useState(null);
@@ -155,6 +156,7 @@ function getInitialDeviceSize() {
               >
                 Subscribe & Save
               </button>
+             
               <button
                 onClick={()=> handleClick(2)}
                 className={` flex justify-center rounded-[var(--md,8px)] items-center px-2.5 lg:px-5 py-2.5 text-[14px] lg:text-lg not-italic leading-[normal] font-normal   ${
@@ -185,7 +187,7 @@ function getInitialDeviceSize() {
         <h5 className={`${isDarkMode ? 'text-white' : 'text-[color:var(--Brand,#28282A)]'} lg:mt-[24px] mt-[15px] text-[14px] 2xl:text-2xl lg:text-[22px] not-italic font-normal leading-[150%] lg:leading-[normal] `}>Collection 1 by Evoked. <br className="lg:hidden block" /> Confidence,now bottled with iconic scents.</h5>
         </div>
         {/*Product Slider */}
-      <ProductSlider/>
+      <ProductSlider products={products} collections={collections} />
           {/* */}
         <div className={` ${show ? 'fixed  bottom-0 left-0 z-[999] w-full' : 'hidden'} 2xl:mt-[70px] lg:mt-0 mt-[70px] border-t-[1px]  border-opacity-[0.4] border-b-[1px] py-[10px] lg:py-[30px] ${isDarkMode ? 'bg-[#28282A] border-white' : 'bg-[#F4F4F4] border-primary'}`}>
           {/* Subscribe and save Bundle Box*/}

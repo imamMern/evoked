@@ -2,7 +2,7 @@ import { useDarkMode } from "@/utils/DarkModeContext";
 import { Remove } from "@/utils/Helpers";
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import '@/app/globals.css'
+
 import { usePricing } from "@/utils/PricingContext";
 import CheckMart from "@/utils/CheckMart";
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -12,7 +12,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/scrollbar';
-import '@/app/globals.css'
+
 const OneTimePurchaseBundleBox = () => {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
     const {show1, setShow1,selectedPlan, selectedPlan2, count, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector, selectedOptions2, setSelectedOptions2 } = usePricing();

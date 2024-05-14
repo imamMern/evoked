@@ -9,7 +9,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
-import '@/app/globals.css'
 import video from '@/public/assets/video.png'
 import videoDark from '@/public/assets/dark-video.png'
 import Image from 'next/image';

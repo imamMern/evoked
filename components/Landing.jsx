@@ -14,7 +14,7 @@ import Footer from './Footer'
 import { PricingProvider } from '@/utils/PricingContext'
 // import BodyComponent from '@/utils/BodyComponent'
 
-const Main = () => {
+const Landing = ({products, collections}) => {
   return (
     <div>
       <DarkModeProvider>
@@ -26,7 +26,7 @@ const Main = () => {
         <ThreeMore/>
         <OtherBrands />
         <PricingProvider>
-        <Pricing/>
+        <Pricing products={products} collections={collections} />
         </PricingProvider>
         <Review/>
         <Story/>
@@ -37,4 +37,4 @@ const Main = () => {
   )
 }
 
-export default Main
+export default Landing

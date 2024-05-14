@@ -10,7 +10,6 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/scrollbar';
-import '@/app/globals.css'
 import perfume from '@/public/assets/perfumeCollect.png'
 import blue from '@/public/assets/blue.png'
 import brown from '@/public/assets/brown.png'
@@ -81,6 +80,7 @@ const SubscribeAndSave = () => {
   
     // Toggle dropdown for a specific index
     const toggleDropdown = (index) => {
+      debugger
       setIsOpen(prevOpen => prevOpen.map((value, i) => i === index ? !value : false)); // Close other dropdowns
     };
   

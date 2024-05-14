@@ -32,13 +32,14 @@ export const PricingProvider = ({ children }) => {
     const [selectedOptions2, setSelectedOptions2] = useState(data2.map(() => "100ml"));
     const [isOpen, setIsOpen] = useState(data.map(() => false)); 
     const [itemCount, setItemCount] = useState(0);
+    const [cartItems, setCartItems] = useState([]);
     const handleOptionChange = (option, index) => {
       setSelectedOptions(prevOptions => prevOptions.map((value, i) => i === index ? option : value));
       setIsOpen(prevOpen => prevOpen.map((value, i) => i === index ? false : value)); 
     };
 
   return (
-    <PricingContext.Provider value={{ show1, setShow1, selectedButton, setSelectedButton, selectedPlan, setSelectedPlan, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector,selectedOptions, setSelectedOptions, selectedOptions2, setSelectedOptions2, selectedTrend, setSelectedTrend, isOpen, setIsOpen, handleOptionChange, itemCount, setItemCount  }}>
+    <PricingContext.Provider value={{ show1, setShow1, selectedButton, setSelectedButton, selectedPlan, setSelectedPlan, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector,selectedOptions, setSelectedOptions, selectedOptions2, setSelectedOptions2, selectedTrend, setSelectedTrend, isOpen, setIsOpen, handleOptionChange, itemCount, setItemCount,cartItems, setCartItems  }}>
       {children}
     </PricingContext.Provider>
   );

@@ -2,14 +2,17 @@ import { useDarkMode } from "@/utils/DarkModeContext";
 import { Remove } from "@/utils/Helpers";
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import '@/app/globals.css'
+import { getProduct } from "../../utils/shopify"
 import { usePricing } from "@/utils/PricingContext";
 import CheckMart from "@/utils/CheckMart";
-
-const SubscibeAndSaveBundleBox = () => {
+import Link from "next/link";
+import { useRouter } from 'next/navigation'
+import Router from 'next/router'
+const SubscibeAndSaveBundleBox = ({isCheckout, checkOutUrl}) => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { show1, setShow1, selectedPlan, setSelectedPlan, selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, selectedOptions, setSelectedOptions, itemCount, setItemCount } = usePricing();
-const [selectedTrend, setSelectedTrend] = useState(true);
+  const { show1, setShow1, selectedPlan, setSelectedPlan, selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, selectedOptions, setSelectedOptions, itemCount, setItemCount, cartItems} = usePricing();
+  const router = useRouter()
+  const [selectedTrend, setSelectedTrend] = useState(true);
   const data = [
     { name:'1 Perfume', rate:'£40/2 months', rate50:'£20/2 months', shipping:'Free shipping & returns. ', includes:'What’s included:', firstPoint:'1 x 100ml perfume (lasts 2 months)', firstPoint50:'1 x 50ml perfume (lasts 2 months)', lastPoint:'1 x 5ml sample (free compliment)',spray:'£0.04 per spray' },
     { name:'2 Perfumes', rate:'£60/4 months',rate50:'£30/4 months',discount50:'£40 ', discount:'£80 ', shipping:'Free shipping & returns. ', includes:'What’s included:', firstPoint:'2 x 100ml perfumes (lasts 4 months)',firstPoint50:'2 x 50ml perfume (lasts 4 months)', lastPoint:'2 x 5ml samples (free compliments)',spray:'£0.03 per spray', trend: selectedTrend, trendName: 'MOST POPULAR' },
@@ -43,10 +46,24 @@ const [selectedTrend, setSelectedTrend] = useState(true);
 
   };
 
-  const selectedPlanData = data.find(item => item.name === selectedPlan);
+const selectedPlanData = data.find(item => item.name === selectedPlan);
 const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml')
   const actualPrice = selectedImages.length === 1 ? '' : selectedImages.length === 2 ? forFifty ? ('$' + 40 ) : ('$' + 80 ): selectedImages.length === 3 ? forFifty ? ('$' + 60 ) : ('$' + 120) : 0;
   const totalPrice = selectedImages.length === 1 ? forFifty ? 20 : 40 : selectedImages.length === 2 ? forFifty ? 30 : 60 : selectedImages.length === 3 ? forFifty ? 37 : 75 : 0;
+
+  
+  const checkoutNow = () => {
+    debugger
+    let url = cartItems?.checkOutUrl
+    
+    if(cartItems != undefined) {
+      router.push(url)
+      window.sessionStorage.removeItem('cartId')
+    }else {
+      router.push("/")
+    }
+    
+  }
   return (
     <>
       {
@@ -72,7 +89,7 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
                   <div key={boxIndex} className={`2xl:w-[150px] 2xl:h-[150px] lg:w-[100px] lg:h-[100px] md:w-[100px] md:h-[100px] w-[60px] h-[60px] border border-solid relative ${isDarkMode ? 'bg-primary border-[color:var(--black,#171717)] shadow-[2px_2px_0px_0px_rgba(255,255,255,0.70)]' : 'bg-white border-[color:var(--black,#171717)] shadow-[2px_2px_0px_0px_#171717]'}`}>
                     {selectedImages[boxIndex] && (
                       <>
-                        <Image className="2xl:w-[70px] 2xl:h-[108.387px]  md:w-[50px] md:h-[76px] w-[25px] h-[40px] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex]} alt={`Image ${boxIndex}`} />
+                        <Image className="2xl:w-[70px] 2xl:h-[108.387px]  md:w-[50px] md:h-[76px] w-[25px] h-[40px] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex]} alt={`Image ${boxIndex}`} width={80} height={100}/>
                         <button className="absolute lg:top-[-10px] top-[-6px] right-[-8px] lg:right-[-11px]" onClick={() => handleRemoveFromSet(boxIndex)}>
                           <Remove className={`lg:w-auto lg:h-auto  md:top-[-7px] md:right-[-8px] h-[13px] w-[13px]`} rect={isDarkMode ? 'white' : '#171717'} color={isDarkMode ? '#171717' : 'white'} />
                         </button>
@@ -96,7 +113,7 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
                 </select>
               </div>
               <div className="md:flex md:flex-col">
-              <button className={`flex mt-[20px] 2xl:w-[590px] lg:w-[100%] w-[314px] justify-between items-center px-[20px] lg:px-[24px] lg:py-[12px] 2xl:px-[30px] 2xl:py-[18px] py-[12px] rounded-[var(--md,8px)] border  border-solid ${isDarkMode ? 'border-[color:var(--black,#171717)] shadow-[4px_4px_0px_0px_#FFF] bg-white' : 'shadow-[4px_4px_0px_0px_#171717] border-white bg-primary'}`}>
+              <button onClick={checkoutNow} className={`flex mt-[20px] 2xl:w-[590px] lg:w-[100%] w-[314px] justify-between items-center px-[20px] lg:px-[24px] lg:py-[12px] 2xl:px-[30px] 2xl:py-[18px] py-[12px] rounded-[var(--md,8px)] border  border-solid ${isDarkMode ? 'border-[color:var(--black,#171717)] shadow-[4px_4px_0px_0px_#FFF] bg-white' : 'shadow-[4px_4px_0px_0px_#171717] border-white bg-primary'}`}>
                 <span className={` ${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[16px] lg:text-[20px] 2xl:text-[32px] not-italic font-bold leading-[120%]`}>SUBSCRIBE NOW</span>
 
                 <span className={`${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[16px] lg:text-[24px] 2xl:text-[32px] not-italic font-bold leading-[120%]`}>
