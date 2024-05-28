@@ -2,17 +2,18 @@ import { useDarkMode } from "@/utils/DarkModeContext";
 import { Remove } from "@/utils/Helpers";
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { getProduct } from "../../utils/shopify"
+import { getProduct, CheckoutUrlWithSellingPlanId } from "../../utils/shopify"
 import { usePricing } from "@/utils/PricingContext";
 import CheckMart from "@/utils/CheckMart";
 import Link from "next/link";
 import { useRouter } from 'next/navigation'
 import Router from 'next/router'
-const SubscibeAndSaveBundleBox = ({isCheckout, checkOutUrl}) => {
+const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { show1, setShow1, selectedPlan, setSelectedPlan, selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, selectedOptions, setSelectedOptions, itemCount, setItemCount, cartItems} = usePricing();
   const router = useRouter()
   const [selectedTrend, setSelectedTrend] = useState(true);
+
   const data = [
     { name:'1 Perfume', rate:'£40/2 months', rate50:'£20/2 months', shipping:'Free shipping & returns. ', includes:'What’s included:', firstPoint:'1 x 100ml perfume (lasts 2 months)', firstPoint50:'1 x 50ml perfume (lasts 2 months)', lastPoint:'1 x 5ml sample (free compliment)',spray:'£0.04 per spray' },
     { name:'2 Perfumes', rate:'£60/4 months',rate50:'£30/4 months',discount50:'£40 ', discount:'£80 ', shipping:'Free shipping & returns. ', includes:'What’s included:', firstPoint:'2 x 100ml perfumes (lasts 4 months)',firstPoint50:'2 x 50ml perfume (lasts 4 months)', lastPoint:'2 x 5ml samples (free compliments)',spray:'£0.03 per spray', trend: selectedTrend, trendName: 'MOST POPULAR' },
@@ -24,16 +25,27 @@ const SubscibeAndSaveBundleBox = ({isCheckout, checkOutUrl}) => {
     '3 Perfumes': [{}, {}, {}],
     'Perfume Set': Array.from({ length: count }, () => ({})), // For one-time purchase
   };
-  const content = selectedPlan === 'Perfume Set' ? PerfumeContent[selectedPlan2] || [] : PerfumeContent[selectedPlan] || [];
 
-  const options = [
-    { value: '1', label: '1 month' },
-    { value: '2', label: selectedPlan === '1 Perfume' ? '2 month (Recommended)' : '2 month' },
-    { value: '3', label: '3 month' },
-    { value: '4', label: selectedPlan === '2 Perfumes' ? '4 month (Recommended)' : '4 month' },
-    { value: '5', label: '5 month' },
-    { value: '6', label: selectedPlan === '3 Perfumes' ? '6 month (Recommended)' : '6 month' },
-  ]
+  const content = selectedPlan === 'Perfume Set' ? PerfumeContent[selectedPlan2] || [] : PerfumeContent[selectedPlan] || [];
+  
+  let newOptions = products?.products?.edges[0]?.node?.sellingPlanGroups.edges[0].node.sellingPlans.edges
+  const getOption = newOptions.length > 0 && newOptions.map((x, i) => {
+    return { value: x.node.id, label: x.node.name }
+  })
+  const [options, setOptions] = useState([]);
+  
+  useEffect(() => {
+    setOptions(getOption)
+  },[getOption.length > 0])
+  // console.log("collectionsdata", options)
+  // const options = [
+  //   { value: '1', label: '1 month' },
+  //   { value: '2', label: selectedPlan === '1 Perfume' ? '2 month (Recommended)' : '2 month' },
+  //   { value: '3', label: '3 month' },
+  //   { value: '4', label: selectedPlan === '2 Perfumes' ? '4 month (Recommended)' : '4 month' },
+  //   { value: '5', label: '5 month' },
+  //   { value: '6', label: selectedPlan === '3 Perfumes' ? '6 month (Recommended)' : '6 month' },
+  // ]
   const handleRemoveFromSet = (boxIndex) => {
     setSelectedImages(prevImages => {
       // Create a new array with the image at the specified boxIndex set to null
@@ -46,23 +58,55 @@ const SubscibeAndSaveBundleBox = ({isCheckout, checkOutUrl}) => {
 
   };
 
+useEffect(() => {
+  if(selectedImages && selectedImages.length == 0) {
+    setSelectedImages(JSON.parse(window.localStorage.getItem("cartItems")))
+  }
+  console.log("cartItems", cartItems)
+},[cartItems, selectedImages])
+
 const selectedPlanData = data.find(item => item.name === selectedPlan);
 const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml')
-  const actualPrice = selectedImages.length === 1 ? '' : selectedImages.length === 2 ? forFifty ? ('$' + 40 ) : ('$' + 80 ): selectedImages.length === 3 ? forFifty ? ('$' + 60 ) : ('$' + 120) : 0;
-  const totalPrice = selectedImages.length === 1 ? forFifty ? 20 : 40 : selectedImages.length === 2 ? forFifty ? 30 : 60 : selectedImages.length === 3 ? forFifty ? 37 : 75 : 0;
+  const actualPrice = selectedImages?.length === 1 ? '' : selectedImages?.length === 2 ? forFifty ? ('$' + 40 ) : ('$' + 80 ): selectedImages?.length === 3 ? forFifty ? ('$' + 60 ) : ('$' + 120) : 0;
+  const totalPrice = selectedImages?.length === 1 ? forFifty ? 20 : 40 : selectedImages?.length === 2 ? forFifty ? 30 : 60 : selectedImages?.length === 3 ? forFifty ? 37 : 75 : 0;
 
-  
+
   const checkoutNow = () => {
     debugger
-    let url = cartItems?.checkOutUrl
+    const getCheckOuturl = JSON.parse(window.sessionStorage.getItem("checkoutUrl"))
+
+
+    let urlCheck = getCheckOuturl.data.cartLinesAdd.cart.checkoutUrl
     
-    if(cartItems != undefined) {
-      router.push(url)
+    if(getCheckOuturl != undefined) {
+      router.push(urlCheck)
       window.sessionStorage.removeItem('cartId')
+      window.sessionStorage.removeItem("checkoutUrl")
+      window.localStorage.removeItem("cartItems")
     }else {
       router.push("/")
     }
     
+  }
+
+
+
+  const selectionHanlder = (e) => {
+    debugger
+    const cartid = window.sessionStorage.getItem("cartId");
+    if(selectedImages.length > 0) {
+      selectedImages.forEach(async (d, ) => {
+        let lines = {
+          "ProductVariant" : d.variants.edges[2].node.id,
+          "quantity" : "1",
+          "attributes" : {"key" : "size", "value" : "100ml"}
+        }
+        const url = await CheckoutUrlWithSellingPlanId(cartid, lines, e.target.value)
+        console.log(url)
+        window.sessionStorage.setItem("checkoutUrl", JSON.stringify(url))
+      });
+    }
+    setSelectedOptions(e.target.value)
   }
   return (
     <>
@@ -87,9 +131,10 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
               <div className="flex gap-x-[20px] justify-center">
                 {content.map((_, boxIndex) => (
                   <div key={boxIndex} className={`2xl:w-[150px] 2xl:h-[150px] lg:w-[100px] lg:h-[100px] md:w-[100px] md:h-[100px] w-[60px] h-[60px] border border-solid relative ${isDarkMode ? 'bg-primary border-[color:var(--black,#171717)] shadow-[2px_2px_0px_0px_rgba(255,255,255,0.70)]' : 'bg-white border-[color:var(--black,#171717)] shadow-[2px_2px_0px_0px_#171717]'}`}>
-                    {selectedImages[boxIndex] && (
+                    {selectedImages && selectedImages[boxIndex] && (
                       <>
-                        <Image className="2xl:w-[70px] 2xl:h-[108.387px]  md:w-[50px] md:h-[76px] w-[25px] h-[40px] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex]} alt={`Image ${boxIndex}`} width={80} height={100}/>
+                        <Image className="2xl:w-[70px] 2xl:h-[108.387px]  md:w-[50px] md:h-[76px] w-[25px] h-[40px] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex].featuredImage
+?.url} alt={`Image ${boxIndex}`} width={80} height={100}/>
                         <button className="absolute lg:top-[-10px] top-[-6px] right-[-8px] lg:right-[-11px]" onClick={() => handleRemoveFromSet(boxIndex)}>
                           <Remove className={`lg:w-auto lg:h-auto  md:top-[-7px] md:right-[-8px] h-[13px] w-[13px]`} rect={isDarkMode ? 'white' : '#171717'} color={isDarkMode ? '#171717' : 'white'} />
                         </button>
@@ -103,12 +148,15 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
             <div className="lg:w-[40%]">
               <div className="lg:flex items-center 2xl:gap-x-[20px] lg:gap-x-[10px]">
                 <h6 className={`2xl:text-base text-[14px] lg:block hidden not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white' : 'text-[color:var(--Brand,#28282A)]'}`}>Deliver every:</h6>
-                <select name="" id="" className={`px-[10px] lg:block hidden py-[5px] bg-transparent border  rounded-[4px] outline-none ${isDarkMode ? 'border-white text-white' : 'border-[#28282A] text-[#28282A]'}`}>
-                  {options.map(({ value, label }) => (
-                    <option className={`text-[color:var(--Brand,#28282A)] 2xl:text-lg lg:text-[16px] not-italic font-normal leading-[normal]`} key={value} value={value} selected={selectedPlan === `1 Perfume` && value === '2' ||
-                      selectedPlan === `2 Perfumes` && value === '4' ||
-                      selectedPlan === `3 Perfumes` && value === '6' ? true : false}>{label}</option>
-                  ))
+                <select onChange={(e) => selectionHanlder(e)} name="" id="" className={`px-[10px] lg:block hidden py-[5px] bg-transparent border  rounded-[4px] outline-none ${isDarkMode ? 'border-white text-white' : 'border-[#28282A] text-[#28282A]'}`}>
+                  
+                  {
+                    options.length > 0 && options?.map((x, i) => {
+                      
+                     return <><option className={`text-[color:var(--Brand,#28282A)] 2xl:text-lg lg:text-[16px] not-italic font-normal leading-[normal]`} key={x.value} name={x.value} value={x.value}>
+                        {x.label}
+                        </option></>
+                    })
                   }
                 </select>
               </div>

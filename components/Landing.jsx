@@ -15,6 +15,7 @@ import { PricingProvider } from '@/utils/PricingContext'
 // import BodyComponent from '@/utils/BodyComponent'
 
 const Landing = ({products, collections}) => {
+  
   return (
     <div>
       <DarkModeProvider>

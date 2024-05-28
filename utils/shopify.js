@@ -1,5 +1,5 @@
 const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESSTOKEN;
-const endpoint = process.env.SHOPIFY_STORE_FRONT_API_URL;
+const STORE_FRONT_API = process.env.SHOPIFY_STORE_FRONT_API_URL;
 
 const adminEndPoint = process.env.SHOPIFY_STORE_ADMIN_API;
 const adminStoreAccessToken = process.env.ADMIN_API_ACCESS_TOKEN;
@@ -12,18 +12,19 @@ const graphQLClient = new GraphQLClient('https://beevoked.myshopify.com/api/2024
     "X-Shopify-Storefront-Access-Token": storefrontAccessToken,
     "Content-Type": "application/json",
     
+    
   },
 });
 
 async function ShopifyFrontData(query, variables) {
   //const URL = `https://${domain}/admin/api/2024-04/graphql.json`;
-  const URL = endpoint
+  const URL = STORE_FRONT_API
   
   const options = {
     endpoint: 'https://beevoked.myshopify.com/api/2024-04/graphql.json',
     method: "POST",
     headers: {
-      "X-Shopify-Storefront-Access-Token": storefrontAccessToken,
+      "X-Shopify-Storefront-Access-Token": 'c0e2768eb355ed35104d0b75433cc70a',
       Accept: "application/json",
       "Content-Type": "application/json",
     },
@@ -70,7 +71,7 @@ async function ShopifyData(query) {
 export async function getProducts() {
   const getAllProductsQuery = gql`
     {
-      products(first: 10) {
+      products(first: 100) {
         edges {
           node {
             id
@@ -79,6 +80,21 @@ export async function getProducts() {
             priceRange {
               minVariantPrice {
                 amount
+              }
+            }
+            sellingPlanGroups(first:10){
+              edges{
+                node{
+                 name
+                  sellingPlans(first:10){
+                    edges {
+                      node{
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
               }
             }
             featuredImage {
@@ -110,6 +126,21 @@ export async function getProductByCollection() {
                   id
                   description
                   tags
+                  sellingPlanGroups(first:10){
+                    edges{
+                      node{
+                       name
+                        sellingPlans(first:10){
+                          edges {
+                            node{
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                   handle
                    variants(first: 10) {
                     edges {
@@ -138,31 +169,75 @@ export async function getProductByCollection() {
   }
 
 
-  export async function addToCart(id, quantity) {
-    const createCartMutation =`
-      mutation createCart($cartInput: CartInput) {
-        cartCreate(input: $cartInput) {
-          cart {
-            id
-            checkoutUrl
-            totalQuantity
-          }
+export async function addToCart(id, quantity) {
+  const createCartMutation =`
+    mutation createCart($cartInput: CartInput) {
+      cartCreate(input: $cartInput) {
+        cart {
+          id
+          totalQuantity
         }
       }
-   `;
- 
-     const variables = {
-      cartInput : {
-         lines: [
-           {
-             "quantity": parseInt(quantity),
-             "merchandiseId": id
-           },
-         ],
-       },
-     };
-    return ShopifyFrontData(createCartMutation, variables );
-   }
+    }
+  `;
+
+    const variables = {
+    cartInput : {
+        lines: [
+          {
+            "quantity": parseInt(quantity),
+            "merchandiseId": id
+          },
+        ],
+      },
+    };
+  return ShopifyFrontData(createCartMutation, variables );
+}
+
+export async function CreateCart(id, quantity) {
+  const createMutation = `mutation cartCreate {
+    cartCreate {
+      cart {
+        id
+        checkoutUrl
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }`
+
+  const variables = {
+    
+      input: {
+        attributes: [
+          {
+            "key": "<your-key>",
+            "value": "<your-value>"
+          }
+        ],
+       
+        
+        lines: [
+          {
+            "attributes": [
+              {
+                "key": "<your-key>",
+                "value": "<your-value>"
+              }
+            ],
+            "merchandiseId": id,
+            "quantity": parseInt(quantity),
+            "sellingPlanId": "gid://shopify/SellingPlan/1224474729"
+          }
+        ]
+       
+      }
+      
+    };
+  return ShopifyFrontData(createMutation, variables );
+}
 
 // export async function addToCart(itemId, quantity) {
 //   const createCartMutation = gql`
@@ -325,3 +400,36 @@ export const getCheckoutUrl = async (cartId) => {
     throw new Error(error);
   }
 };
+
+
+export const CheckoutUrlWithSellingPlanId = async (cartId, lines, sellingPlanId) => {
+  const createCheckOut = `mutation checkoutURL($cartId: ID!, $lines: [CartLineInput!]!) {
+    cartLinesAdd(cartId: $cartId, lines: $lines){
+      cart {
+           checkoutUrl
+           totalQuantity
+         }
+     }
+   }`
+
+   const variables = {
+    
+      cartId : cartId,
+      lines: [
+          {
+            "merchandiseId": lines.ProductVariant,
+            "quantity": parseInt(lines.quantity),
+            "attributes" : lines.attributes,
+            "sellingPlanId" : sellingPlanId
+          }
+          
+        ]
+   }
+   return ShopifyFrontData(createCheckOut, variables );
+  //  try {
+  //   return await graphQLClient.request(createCheckOut, variables);
+  // } catch (error) {
+  //   throw new Error(error);
+  // }
+
+}

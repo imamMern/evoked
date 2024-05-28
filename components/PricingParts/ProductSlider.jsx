@@ -26,7 +26,7 @@ import { getProduct, updateCart, addToCart } from "../../utils/shopify"
 
 export default function ProductSlider ({products, collections}) {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
-    const {show1, setShow1,selectedPlan, setSelectedPlan,selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, cartItems, setCartItems  } = usePricing();
+    const {show1, setShow1,selectedPlan, setSelectedPlan,selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, selectedOptions, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, cartItems, setCartItems  } = usePricing();
     const [dropdownOpen1, setDropdownOpen1] = useState(false);
     const [dropdownOpen2, setDropdownOpen2] = useState(false);
     const [initCollection, setInitCollection] = useState("Men's Perfumes");
@@ -86,7 +86,6 @@ export default function ProductSlider ({products, collections}) {
         setCurrentIndex(swiper.realIndex);
       };
       const handleAddToSet = async(perfume, items) => {
-        
         // Determine the maximum limit based on the selected plan
         let maxLimit = 0;
         if (selectedPlan === '1 Perfume') {
@@ -96,20 +95,33 @@ export default function ProductSlider ({products, collections}) {
         } else if (selectedPlan === '3 Perfumes') {
             maxLimit = numberOfBoxes;
         }
+
         
-        if (selectedImages.length < maxLimit) {
+        if (selectedImages && selectedImages.length < maxLimit) {
+          
+            if(localStorage.getItem("cartItems") == null) {
+              window.localStorage.setItem("cartItems", JSON.stringify(items))
+            }else {
+              const getCartFromWindow = []
+              getCartFromWindow.push(JSON.parse(window.localStorage.getItem("cartItems")))
+              getCartFromWindow.push(items)
+              window.localStorage.setItem("cartItems", JSON.stringify(getCartFromWindow))
+            }
             
-            setSelectedImages(prevImages => [...prevImages, items.featuredImage.url]);
+            setSelectedImages(prevImages => [...prevImages, JSON.parse(window.localStorage.getItem("cartItems"))]);
             let cartId = window.sessionStorage.getItem("cartId");
               
                 if (cartId) {
-                  await updateCart(cartId, items.variants.edges[0].node.id, "1");
+                  await updateCart(cartId, items.variants.edges[2].node.id, "1");
+                  let UpdateItem = [{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}]
+                  setCartItems([...cartItems, ...UpdateItem])
                   setCheckout(true);
                 } else {
-                  let data = await addToCart(items.variants.edges[0].node.id, "1");
+                  
+                  let data = await addToCart(items.variants.edges[2].node.id, "1");
                   cartId = data.data.cartCreate?.cart?.id;
-                  let checkoutUrl = data.data.cartCreate?.cart.checkoutUrl
-                  setCartItems({"checkOutUrl" : checkoutUrl, "isCheckout" : true})
+                  // let checkoutUrl = data.data.cartCreate?.cart.checkoutUrl
+                  setCartItems([{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}])
                   window.sessionStorage.setItem("cartId", cartId);
                   setCheckout(true);
                 }
@@ -275,7 +287,7 @@ export default function ProductSlider ({products, collections}) {
                                 </div>
                                 {
                                   show1 === 1 && (
-                                    selectedImages.length < maxLimit ? (
+                                    selectedImages == null && selectedImages?.length < maxLimit ? (
                                       <button  onClick={() => {handleAddToSet("", item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)]  mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>
                                         Add To Set
                                         <Image src={addSet} alt="Set"/>
@@ -289,7 +301,7 @@ export default function ProductSlider ({products, collections}) {
 
 {
                                   show1 === 2 && (
-                                    selectedImages.length < count  ? (
+                                    selectedImages == null &&  selectedImages.length < count  ? (
                                       <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] ${index === currentIndex ? 'block' : 'hidden'}  lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
                                                        </button>
                                  ) : (

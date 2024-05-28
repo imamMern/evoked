@@ -191,7 +191,7 @@ function getInitialDeviceSize() {
           {/* */}
         <div className={` ${show ? 'fixed  bottom-0 left-0 z-[999] w-full' : 'hidden'} 2xl:mt-[70px] lg:mt-0 mt-[70px] border-t-[1px]  border-opacity-[0.4] border-b-[1px] py-[10px] lg:py-[30px] ${isDarkMode ? 'bg-[#28282A] border-white' : 'bg-[#F4F4F4] border-primary'}`}>
           {/* Subscribe and save Bundle Box*/}
-        <SubscibeAndSaveBundleBox/>
+        <SubscibeAndSaveBundleBox products={products} collections={collections} />
           {/* One-time Purchase Bundle Box */}
          <OneTimePurchaseBundleBox/>
          

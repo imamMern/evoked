@@ -33,6 +33,7 @@ export const PricingProvider = ({ children }) => {
     const [isOpen, setIsOpen] = useState(data.map(() => false)); 
     const [itemCount, setItemCount] = useState(0);
     const [cartItems, setCartItems] = useState([]);
+
     const handleOptionChange = (option, index) => {
       setSelectedOptions(prevOptions => prevOptions.map((value, i) => i === index ? option : value));
       setIsOpen(prevOpen => prevOpen.map((value, i) => i === index ? false : value)); 
