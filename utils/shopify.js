@@ -407,7 +407,6 @@ export const CheckoutUrlWithSellingPlanId = async (cartId, lines, sellingPlanId)
     cartLinesAdd(cartId: $cartId, lines: $lines){
       cart {
            checkoutUrl
-           totalQuantity
          }
      }
    }`
@@ -415,15 +414,16 @@ export const CheckoutUrlWithSellingPlanId = async (cartId, lines, sellingPlanId)
    const variables = {
     
       cartId : cartId,
-      lines: [
-          {
-            "merchandiseId": lines.ProductVariant,
-            "quantity": parseInt(lines.quantity),
-            "attributes" : lines.attributes,
-            "sellingPlanId" : sellingPlanId
-          }
+      lines : lines
+      // lines: [
+      //     {
+      //       "merchandiseId": lines.ProductVariant,
+      //       "quantity": parseInt(lines.quantity),
+      //       "attributes" : lines.attributes,
+      //       "sellingPlanId" : lines.sellingPlanId
+      //     }
           
-        ]
+      //   ]
    }
    return ShopifyFrontData(createCheckOut, variables );
   //  try {

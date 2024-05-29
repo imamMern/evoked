@@ -100,9 +100,10 @@ const OneTimePurchaseBundleBox = () => {
                       {Array.from({ length: count }).map((_, boxIndex) => (
                      <SwiperSlide key={boxIndex} >
           <div className={`2xl:w-[150px] 2xl:h-[150px] lg:w-[100px] lg:h-[100px] md:w-[100px] md:h-[100px] w-[60px] h-[60px]  border border-solid relative ${isDarkMode ? 'bg-primary border-[color:var(--black,#171717)] shadow-[2px_2px_0px_0px_rgba(255,255,255,0.70)]' : 'bg-white border-[color:var(--black,#171717)] shadow-[2px_2px_0px_0px_#171717]'} `}>
-          {selectedImages[boxIndex] && (
+          {selectedImages && selectedImages[boxIndex] && (
         <>
-          <Image className="2xl:w-[70px] 2xl:h-[108.387px] md:w-[50px] md:h-[76px] w-[25px] h-[40px] z-[100] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex]} alt={`Image ${boxIndex}`} />
+          <Image className="2xl:w-[70px] 2xl:h-[108.387px] md:w-[50px] md:h-[76px] w-[25px] h-[40px] z-[100] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex].featuredImage
+?.url} alt={`Image ${boxIndex}`} width={80} height={100}/>
               <button className="absolute lg:top-[-10px] md:top-[-7px] md:right-[-8px] top-[-7px] right-[-7px] lg:right-[-11px] z-[999]" onClick={() => handleRemoveFromSetOneTime(boxIndex)}>
                 <Remove className={`lg:w-auto lg:h-auto  h-[13px] w-[13px]`}  rect={isDarkMode ? 'white' : '#171717'} color={isDarkMode ? '#171717' : 'white'}/>
           </button>
@@ -128,7 +129,7 @@ const OneTimePurchaseBundleBox = () => {
                
                
                   {selectedOptions2.map((option, index) => (
-                    selectedImages.length === count ?
+                  selectedImages &&  selectedImages.length === count ?
   <span key={index} className={`${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[16px] lg:text-[24px] 2xl:text-[32px] not-italic font-bold leading-[120%]`}>
     <span className={`${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[10px] lg:text-xl not-italic font-normal leading-[120%] line-through`}>
       {option === "50ml" ? selector ? discount50 : null : selector ? discount : null}

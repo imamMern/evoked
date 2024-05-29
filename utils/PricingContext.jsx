@@ -21,6 +21,7 @@ export const PricingProvider = ({ children }) => {
     const [selectedPlan2, setSelectedPlan2] = useState('Perfume Set');
     const [count, setCount] = useState(1)
     const [selectedImages, setSelectedImages] = useState([]);
+    const [selectedProductImages, setSelectedProductImages] = useState([]);
     const [selectedOneTimeItems, setSelectedOneTimeItems] = useState([]);
     const [rate, setRate] = useState(data2[0].rate);
     const [rate50, setRate50] = useState(data2[0].rate50);
@@ -40,7 +41,7 @@ export const PricingProvider = ({ children }) => {
     };
 
   return (
-    <PricingContext.Provider value={{ show1, setShow1, selectedButton, setSelectedButton, selectedPlan, setSelectedPlan, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector,selectedOptions, setSelectedOptions, selectedOptions2, setSelectedOptions2, selectedTrend, setSelectedTrend, isOpen, setIsOpen, handleOptionChange, itemCount, setItemCount,cartItems, setCartItems  }}>
+    <PricingContext.Provider value={{ show1, setShow1, selectedButton, setSelectedButton, selectedPlan, setSelectedPlan, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector,selectedOptions, setSelectedOptions, selectedOptions2, setSelectedOptions2, selectedTrend, setSelectedTrend, isOpen, setIsOpen, handleOptionChange, itemCount, setItemCount,cartItems, setCartItems, setSelectedProductImages, selectedProductImages  }}>
       {children}
     </PricingContext.Provider>
   );

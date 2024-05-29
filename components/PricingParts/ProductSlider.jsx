@@ -26,7 +26,7 @@ import { getProduct, updateCart, addToCart } from "../../utils/shopify"
 
 export default function ProductSlider ({products, collections}) {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
-    const {show1, setShow1,selectedPlan, setSelectedPlan,selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, selectedOptions, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, cartItems, setCartItems  } = usePricing();
+    const {show1, setShow1,selectedPlan, setSelectedPlan,selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, selectedOptions, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, cartItems, setCartItems, selectedProductImages, setSelectedProductImages  } = usePricing();
     const [dropdownOpen1, setDropdownOpen1] = useState(false);
     const [dropdownOpen2, setDropdownOpen2] = useState(false);
     const [initCollection, setInitCollection] = useState("Men's Perfumes");
@@ -97,8 +97,8 @@ export default function ProductSlider ({products, collections}) {
         }
 
         
-        if (selectedImages && selectedImages.length < maxLimit) {
-          
+        if (selectedProductImages && selectedProductImages.length < maxLimit) {
+            setSelectedProductImages(prevImages => [...prevImages, perfume])
             if(localStorage.getItem("cartItems") == null) {
               window.localStorage.setItem("cartItems", JSON.stringify(items))
             }else {
@@ -108,13 +108,14 @@ export default function ProductSlider ({products, collections}) {
               window.localStorage.setItem("cartItems", JSON.stringify(getCartFromWindow))
             }
             
-            setSelectedImages(prevImages => [...prevImages, JSON.parse(window.localStorage.getItem("cartItems"))]);
             let cartId = window.sessionStorage.getItem("cartId");
               
                 if (cartId) {
                   await updateCart(cartId, items.variants.edges[2].node.id, "1");
                   let UpdateItem = [{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}]
                   setCartItems([...cartItems, ...UpdateItem])
+                  const newArry = [items]
+                  setSelectedImages([...selectedImages, ...newArry]);
                   setCheckout(true);
                 } else {
                   
@@ -122,6 +123,7 @@ export default function ProductSlider ({products, collections}) {
                   cartId = data.data.cartCreate?.cart?.id;
                   // let checkoutUrl = data.data.cartCreate?.cart.checkoutUrl
                   setCartItems([{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}])
+                  setSelectedImages([items]);
                   window.sessionStorage.setItem("cartId", cartId);
                   setCheckout(true);
                 }
@@ -136,8 +138,9 @@ export default function ProductSlider ({products, collections}) {
     };
       
     
-    const handleAddToSetOneTime = (perfume) => {
+    const handleAddToSetOneTime = (perfume, items) => {
       // Calculate the number of selected boxes
+      debugger
       const selectedBoxes = selectedOneTimeItems.length;
       
       // Determine the maximum limit based on the number of selected boxes
@@ -149,15 +152,21 @@ export default function ProductSlider ({products, collections}) {
           alert('You have reached the maximum limit of boxes.');
       } else {
           // Add the new item to both sets if there are empty boxes
+          if(selectedImages == null) {
+            setSelectedImages([items]);
+          }else {
+            const newArry = [items]
+            setSelectedImages([...selectedImages, ...newArry]);
+          }
+          const newArry = [items]
           setSelectedOneTimeItems(prevItems => [...prevItems, perfume]);
-          setSelectedImages(prevImages => [...prevImages, perfume]);
+          //setSelectedImages(prevImages => [...prevImages, ...newArry]);
       }
     }
 
     useEffect(() => {
       console.log("dataProduct", cartItems)
     },[cartItems])
-
 
   return (
     <>
@@ -193,19 +202,22 @@ export default function ProductSlider ({products, collections}) {
                 selectedButton === 1 | 2 | 3 && (
                   <div className="lg:mt-[80px] mt-[20px]">
                      <Swiper
-                      navigation={{
-                        prevEl: '.swiper-button-prev1',
-                        nextEl: '.swiper-button-next1',
-                      }}
+                     modules={[Navigation]}
+                     navigation
+                      // navigation={{
+                      //   prevEl: '.swiper-button-prev1',
+                      //   nextEl: '.swiper-button-next1',
+                      // }}
+                      
                       spaceBetween={0}
-                      slidesPerView= 'auto'
-                          loop={true}
-                          allowTouchMove={true}
-                          centeredSlides={true}
-                          scrollbar={{ draggable: true }}
-                          mousewheel={true}
+                      slidesPerView= '5'
+                      loop={true}
+                      allowTouchMove={true}
+                      centeredSlides={true}
+                      scrollbar={{ draggable: true }}
+                      mousewheel={true}
                       className="w-full h-full"
-                      modules={[Navigation]}
+                      
                       pagination={{ clickable: true }}
                       onSlideChange={(swiper) => handleSlideChange(swiper)}
                                       initialSlide={currentIndex}
@@ -233,6 +245,7 @@ export default function ProductSlider ({products, collections}) {
                       >
                       {listProducts?.products?.edges?.length > 0 && listProducts.products.edges.map((item, index) => {
                         
+                        
                          let maxLimit = 0;
                          if (selectedPlan === '1 Perfume') {
                              maxLimit = numberOfBoxes - 2;
@@ -243,9 +256,10 @@ export default function ProductSlider ({products, collections}) {
                          } else {
                            maxLimit = 10
                         }
-                     
+                        
                       return (
-              <SwiperSlide key={selectedButton == listProducts.title} className={`lg:w-full sm:w-[100%] md:w-[100%] w-[70%]  ${index === currentIndex  ? 'focus' : 'blur relative z-[-10]'}`}>
+                     
+              <SwiperSlide key={selectedButton == index} className={`lg:w-full sm:w-[100%] md:w-[100%] w-[70%]  ${index === currentIndex  ? 'focus' : 'blur relative z-[-10]'}`} virtualIndex={index}>
                 <div className={`flex relative flex-col select-none items-center gap-[25px]  rounded-[var(--md,8px)]  ${index === currentIndex ? `border ${isDarkMode ? 'border-white' : 'border-[color:var(--black,#171717)]'} border-solid px-20 py-10` : 'px-[30px] py-[20px]'}`}>
                   <Image width={400} height={450} src={item.node.featuredImage?.url} alt="Perfume" className={index === currentIndex ? ' lg:w-[100%] lg:h-[100%] md:w-full md:h-full sm:w-[50%] sm:h-[50%]  w-[90%] h-full' : 'w-[50%] h-[50%] md:w-[40%] md:h-[40%] lg:w-[50%] lg:h-[50%] sm:w-[30%] sm:h-[30%]'} />
                   <div className="flex flex-col justify-center ">
@@ -287,13 +301,13 @@ export default function ProductSlider ({products, collections}) {
                                 </div>
                                 {
                                   show1 === 1 && (
-                                    selectedImages == null && selectedImages?.length < maxLimit ? (
-                                      <button  onClick={() => {handleAddToSet("", item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)]  mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>
+                                    selectedProductImages.length < maxLimit ? (
+                                      <button  onClick={() => {handleAddToSet(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)]  mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>
                                         Add To Set
                                         <Image src={addSet} alt="Set"/>
                                                        </button>
                                  ) : (
-                                   <button onClick={() => {handleAddToSet("", item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5 text-center text-[16px] lg:text-2xl not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
+                                   <button onClick={() => {handleAddToSet(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5 text-center text-[16px] lg:text-2xl not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
                                                     </button>
                                  )
                                   )
@@ -301,11 +315,11 @@ export default function ProductSlider ({products, collections}) {
 
 {
                                   show1 === 2 && (
-                                    selectedImages == null &&  selectedImages.length < count  ? (
-                                      <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] ${index === currentIndex ? 'block' : 'hidden'}  lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
+                                    selectedProductImages.length < count  ? (
+                                      <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] ${index === currentIndex ? 'block' : 'hidden'}  lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
                                                        </button>
                                  ) : (
-                                   <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3)}  className={`w-[220px] flex mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl ${index === currentIndex ? 'block' : 'hidden'}  not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
+                                   <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl ${index === currentIndex ? 'block' : 'hidden'}  not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
                                                     </button>
                                  )
                                   )
@@ -316,30 +330,30 @@ export default function ProductSlider ({products, collections}) {
                       </span>
                   </div>
                 </div>
-                {
+                {/* {
                   index === currentIndex ?  <div className="swiper-button-prev1 absolute top-[40%] md:left-[-2%] left-[5%] lg:left-[-25%] cursor-pointer z-[999]">
                   <Prev className={`lg:h-auto lg:w-auto h-[60px] w-[50px]`} color={isDarkMode ? 'white' : '#28282A'}/>
-                  {/* <Image src={prev} alt="Arrow"/> */}
-                </div> : <div className="swiper-button-prev1 opacity-0 absolute top-[40%] md:left-[-2%] left-[5%] lg:left-[-25%] cursor-pointer z-[999]">
-  <Prev color={isDarkMode ? 'white' : '#28282A'}/>
-  {/* <Image src={prev} alt="Arrow"/> */}
-</div>
+                 
+                </div> : 
+                <div className="swiper-button-prev1 opacity-0 absolute top-[40%] md:left-[-2%] left-[5%] lg:left-[-25%] cursor-pointer z-[999]">
+                  <Prev color={isDarkMode ? 'white' : '#28282A'}/>
+  
+                </div>
                 }
                 {
                   index === currentIndex ?  <div className="swiper-button-next1 absolute top-[40%] md:right-[-2%] right-[5%] lg:right-[-25%] cursor-pointer z-[999]">
                   <Next className={`lg:h-auto lg:w-auto h-[60px] w-[50px]`} color={isDarkMode ? 'white' : '#28282A'}/>
-                 </div> : <div className="swiper-button-next1 opacity-0 absolute top-[40%] md:right-[-2%] right-[5%] lg:right-[-25%] cursor-pointer z-[999]">
- <Next color={isDarkMode ? 'white' : '#28282A'}/>
-</div>
-                }
+                  </div> : 
+                  <div className="swiper-button-next1 opacity-0 absolute top-[40%] md:right-[-2%] right-[5%] lg:right-[-25%] cursor-pointer z-[999]">
+                  <Next color={isDarkMode ? 'white' : '#28282A'}/>
+                  </div>
+                } */}
                 
 
               </SwiperSlide>
             )})
             }
-        
-        
-        
+       
       </Swiper>
                   </div>
                 )

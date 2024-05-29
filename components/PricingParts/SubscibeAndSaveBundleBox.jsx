@@ -60,6 +60,7 @@ const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
 
 useEffect(() => {
   if(selectedImages && selectedImages.length == 0) {
+    debugger
     setSelectedImages(JSON.parse(window.localStorage.getItem("cartItems")))
   }
   console.log("cartItems", cartItems)
@@ -91,20 +92,25 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
 
 
 
-  const selectionHanlder = (e) => {
-    debugger
+  const selectionHanlder = async (e) => {
+    
     const cartid = window.sessionStorage.getItem("cartId");
     if(selectedImages.length > 0) {
-      selectedImages.forEach(async (d, ) => {
-        let lines = {
-          "ProductVariant" : d.variants.edges[2].node.id,
-          "quantity" : "1",
-          "attributes" : {"key" : "size", "value" : "100ml"}
+      let lines = []
+      selectedImages.forEach((d, i) => {
+        console.log("itemCount", content)
+        debugger
+      const vert  = {
+          "merchandiseId" : d.variants.edges[2].node.id,
+          "quantity" : parseInt("1"),
+          "attributes" : {"key" : "size", "value" : "100ml"},
+          "sellingPlanId" : e.target.value
         }
-        const url = await CheckoutUrlWithSellingPlanId(cartid, lines, e.target.value)
-        console.log(url)
-        window.sessionStorage.setItem("checkoutUrl", JSON.stringify(url))
+        lines.push(vert)
       });
+      const url = await CheckoutUrlWithSellingPlanId(cartid, lines, e.target.value)
+      console.log(url)
+      window.sessionStorage.setItem("checkoutUrl", JSON.stringify(url))
     }
     setSelectedOptions(e.target.value)
   }
