@@ -21,7 +21,7 @@ import videoDark from '@/public/assets/dark-video.png'
 import prev from '@/public/assets/prev.svg'
 import next from '@/public/assets/next.svg'
 import addSet from '@/public/assets/addSet.svg'
-import { getProduct, updateCart, addToCart } from "../../utils/shopify"
+import { getProduct, updateCart, addToCart, SingleCartUpdate } from "../../utils/shopify"
 
 
 export default function ProductSlider ({products, collections}) {
@@ -35,13 +35,14 @@ export default function ProductSlider ({products, collections}) {
     const [checkout, setCheckout] = useState(false);
 
     const RenderProducts = () => {
+      
       const data =  collectionsData.find((x) => {
           if(x.title == initCollection) {
             return x.products.edges.map((d) => {return d.node})
           }
           
         })
-        return data
+        return data;
     }
 
     const toggleDropdown1 = () => {
@@ -53,6 +54,7 @@ export default function ProductSlider ({products, collections}) {
     };
 
    const handleButtonClick = (button, collectionTitle) => {
+    debugger
         setSelectedButton(button);
         setInitCollection(collectionTitle)
       };
@@ -109,7 +111,7 @@ export default function ProductSlider ({products, collections}) {
             }
             
             let cartId = window.sessionStorage.getItem("cartId");
-              
+             
                 if (cartId) {
                   await updateCart(cartId, items.variants.edges[2].node.id, "1");
                   let UpdateItem = [{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}]
@@ -138,26 +140,46 @@ export default function ProductSlider ({products, collections}) {
     };
       
     
-    const handleAddToSetOneTime = (perfume, items) => {
+    const handleAddToSetOneTime = async (perfume, items) => {
       // Calculate the number of selected boxes
-      debugger
+      
+      
       const selectedBoxes = selectedOneTimeItems.length;
       
       // Determine the maximum limit based on the number of selected boxes
       let maxLimit = numberOfBoxes2 - selectedBoxes;
       
       // Check if the number of selected boxes exceeds the maximum limit
-      if (selectedBoxes >= count) {
+      if (selectedBoxes > count) {
           // Display an alert if there are no more empty boxes
           alert('You have reached the maximum limit of boxes.');
       } else {
           // Add the new item to both sets if there are empty boxes
-          if(selectedImages == null) {
-            setSelectedImages([items]);
-          }else {
-            const newArry = [items]
-            setSelectedImages([...selectedImages, ...newArry]);
-          }
+         
+            let cartId = window.sessionStorage.getItem("cartId");
+            
+              if (cartId) {
+
+             
+                await updateCart(cartId, items.variants.edges[2].node.id, "1");
+                let UpdateItem = [{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}]
+                setCartItems([...cartItems, ...UpdateItem])
+                const newArry = [items]
+                setSelectedImages([...selectedImages, ...newArry]);
+                setCheckout(true);
+              } else {
+                
+                let data = await addToCart(items.variants.edges[2].node.id, "1");
+                cartId = data.data.cartCreate?.cart?.id;
+                // let checkoutUrl = data.data.cartCreate?.cart.checkoutUrl
+                setCartItems([{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}])
+                setSelectedImages([items]);
+                window.sessionStorage.setItem("cartId", cartId);
+                setCheckout(true);
+              }
+            
+          
+
           const newArry = [items]
           setSelectedOneTimeItems(prevItems => [...prevItems, perfume]);
           //setSelectedImages(prevImages => [...prevImages, ...newArry]);
@@ -166,6 +188,7 @@ export default function ProductSlider ({products, collections}) {
 
     useEffect(() => {
       console.log("dataProduct", cartItems)
+      //window.localStorage.setItem("cartItems", JSON.stringify(cartItems))
     },[cartItems])
 
   return (
@@ -203,14 +226,14 @@ export default function ProductSlider ({products, collections}) {
                   <div className="lg:mt-[80px] mt-[20px]">
                      <Swiper
                      modules={[Navigation]}
-                     navigation
-                      // navigation={{
-                      //   prevEl: '.swiper-button-prev1',
-                      //   nextEl: '.swiper-button-next1',
-                      // }}
+                     //navigation
+                      navigation={{
+                        prevEl: '.swiper-button-prev1',
+                        nextEl: '.swiper-button-next1',
+                      }}
                       
                       spaceBetween={0}
-                      slidesPerView= '5'
+                      slidesPerView= "auto"
                       loop={true}
                       allowTouchMove={true}
                       centeredSlides={true}
@@ -259,7 +282,7 @@ export default function ProductSlider ({products, collections}) {
                         
                       return (
                      
-              <SwiperSlide key={selectedButton == index} className={`lg:w-full sm:w-[100%] md:w-[100%] w-[70%]  ${index === currentIndex  ? 'focus' : 'blur relative z-[-10]'}`} virtualIndex={index}>
+              <SwiperSlide key={selectedButton == item.title} className={`lg:w-full sm:w-[100%] md:w-[100%] w-[70%]  ${index === currentIndex  ? 'focus' : 'blur relative z-[-10]'}`} virtualIndex={index}>
                 <div className={`flex relative flex-col select-none items-center gap-[25px]  rounded-[var(--md,8px)]  ${index === currentIndex ? `border ${isDarkMode ? 'border-white' : 'border-[color:var(--black,#171717)]'} border-solid px-20 py-10` : 'px-[30px] py-[20px]'}`}>
                   <Image width={400} height={450} src={item.node.featuredImage?.url} alt="Perfume" className={index === currentIndex ? ' lg:w-[100%] lg:h-[100%] md:w-full md:h-full sm:w-[50%] sm:h-[50%]  w-[90%] h-full' : 'w-[50%] h-[50%] md:w-[40%] md:h-[40%] lg:w-[50%] lg:h-[50%] sm:w-[30%] sm:h-[30%]'} />
                   <div className="flex flex-col justify-center ">
@@ -330,7 +353,7 @@ export default function ProductSlider ({products, collections}) {
                       </span>
                   </div>
                 </div>
-                {/* {
+                {
                   index === currentIndex ?  <div className="swiper-button-prev1 absolute top-[40%] md:left-[-2%] left-[5%] lg:left-[-25%] cursor-pointer z-[999]">
                   <Prev className={`lg:h-auto lg:w-auto h-[60px] w-[50px]`} color={isDarkMode ? 'white' : '#28282A'}/>
                  
@@ -347,7 +370,7 @@ export default function ProductSlider ({products, collections}) {
                   <div className="swiper-button-next1 opacity-0 absolute top-[40%] md:right-[-2%] right-[5%] lg:right-[-25%] cursor-pointer z-[999]">
                   <Next color={isDarkMode ? 'white' : '#28282A'}/>
                   </div>
-                } */}
+                }
                 
 
               </SwiperSlide>

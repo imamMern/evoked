@@ -2,7 +2,7 @@ import { useDarkMode } from "@/utils/DarkModeContext";
 import { Remove } from "@/utils/Helpers";
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { getProduct, CheckoutUrlWithSellingPlanId } from "../../utils/shopify"
+import { removeFromCart, CheckoutUrlWithSellingPlanId } from "../../utils/shopify"
 import { usePricing } from "@/utils/PricingContext";
 import CheckMart from "@/utils/CheckMart";
 import Link from "next/link";
@@ -46,7 +46,8 @@ const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
   //   { value: '5', label: '5 month' },
   //   { value: '6', label: selectedPlan === '3 Perfumes' ? '6 month (Recommended)' : '6 month' },
   // ]
-  const handleRemoveFromSet = (boxIndex) => {
+  const handleRemoveFromSet = async (boxIndex, item) => {
+    debugger
     setSelectedImages(prevImages => {
       // Create a new array with the image at the specified boxIndex set to null
       const updatedImages = [...prevImages];
@@ -55,7 +56,9 @@ const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
       return updatedImages.filter(image => image !== null) ? updatedImages.filter(image => image !== null) : updatedImages;
     });
     setItemCount((prevCount) => prevCount - 1);
-
+    const productVId = item[boxIndex].variants.edges[2].node.id
+    const cartId = window.sessionStorage.getItem("cartId");
+    await removeFromCart(cartId, productVId)
   };
 
 useEffect(() => {
@@ -141,7 +144,7 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
                       <>
                         <Image className="2xl:w-[70px] 2xl:h-[108.387px]  md:w-[50px] md:h-[76px] w-[25px] h-[40px] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex].featuredImage
 ?.url} alt={`Image ${boxIndex}`} width={80} height={100}/>
-                        <button className="absolute lg:top-[-10px] top-[-6px] right-[-8px] lg:right-[-11px]" onClick={() => handleRemoveFromSet(boxIndex)}>
+                        <button className="absolute lg:top-[-10px] top-[-6px] right-[-8px] lg:right-[-11px]" onClick={() => handleRemoveFromSet(boxIndex, selectedImages)}>
                           <Remove className={`lg:w-auto lg:h-auto  md:top-[-7px] md:right-[-8px] h-[13px] w-[13px]`} rect={isDarkMode ? 'white' : '#171717'} color={isDarkMode ? '#171717' : 'white'} />
                         </button>
                       </>

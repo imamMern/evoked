@@ -2,11 +2,12 @@ import { useDarkMode } from "@/utils/DarkModeContext";
 import { Remove } from "@/utils/Helpers";
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-
+import { getCheckoutUrl, CheckoutUrlWithSellingPlanId } from "../../utils/shopify"
 import { usePricing } from "@/utils/PricingContext";
 import CheckMart from "@/utils/CheckMart";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
+import { useRouter } from 'next/navigation'
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -15,7 +16,9 @@ import 'swiper/css/scrollbar';
 
 const OneTimePurchaseBundleBox = () => {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
-    const {show1, setShow1,selectedPlan, selectedPlan2, count, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector, selectedOptions2, setSelectedOptions2 } = usePricing();
+    const {show1, setShow1,selectedPlan, selectedPlan2, count, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, cartItems, setDiscount50, shipping, setShipping, selector, setSelector, selectedOptions2, setSelectedOptions2 } = usePricing();
+
+    const Router = useRouter()
     const data2 = [
         { name:'Perfume Set', rate:'£45', rate50:'£23', shipping:'Add 1 more to save £20',shippingProgress:'Add 1 more to get 1 x free perfume + £20 off', includes:'What’s included:', firstPoint:' x 100ml perfume (lasts 2 months)',firstPoint50:' x 50ml perfume (lasts 2 months)', lastPoint:' x 5ml sample (free compliment)',spray:'£0.05 per spray', discount:'£60', discount50:'£30' },
       ];
@@ -42,7 +45,32 @@ const OneTimePurchaseBundleBox = () => {
           return updatedImages;
         });
       }
-     
+  
+      const buyNowProduct = async () => {
+        
+        let lines = []
+        const cartItem = JSON.parse(window.localStorage.getItem("cartItems"))
+        cartItem.forEach((d, i) => {
+          console.log("itemCount", content)
+         
+        const vert  = {
+            "merchandiseId" : d.itemId,
+            "quantity" : parseInt(d.quantity),
+          }
+          lines.push(vert)
+        });
+        const cartid = window.sessionStorage.getItem("cartId");
+        const getCheckOutUrl = await CheckoutUrlWithSellingPlanId(cartid, lines, "")
+        const url = getCheckOutUrl.data.cartLinesAdd.cart.checkoutUrl;
+        if(url){
+          window.localStorage.removeItem("cartItems")
+          window.sessionStorage.removeItem("cartId");
+          Router.push(url)
+
+        }else{
+          Router.push("/")
+        }
+      }
   return (
     <>
      {
@@ -124,7 +152,7 @@ const OneTimePurchaseBundleBox = () => {
                    
                 </div>
                 <div className="md:flex md:flex-col lg:flex-row lg:ml-0 ml-0 md:ml-[-70px]">
-                <button className={`flex  lg:mt-[20px] 2xl:w-[590px] lg:w-full w-[314px] justify-between items-center lg:px-[30px] lg:py-[18px] px-[20px] py-[12px] rounded-[var(--md,8px)] border border-solid ${isDarkMode ? 'border-[color:var(--black,#171717)] shadow-[4px_4px_0px_0px_#FFF] bg-white' : 'shadow-[4px_4px_0px_0px_#171717] border-white bg-primary'}`}>
+                <button onClick={() => buyNowProduct()} className={`flex  lg:mt-[20px] 2xl:w-[590px] lg:w-full w-[314px] justify-between items-center lg:px-[30px] lg:py-[18px] px-[20px] py-[12px] rounded-[var(--md,8px)] border border-solid ${isDarkMode ? 'border-[color:var(--black,#171717)] shadow-[4px_4px_0px_0px_#FFF] bg-white' : 'shadow-[4px_4px_0px_0px_#171717] border-white bg-primary'}`}>
                   <span className={`${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[16px] lg:text-[20px] 2xl:text-[32px] not-italic font-bold leading-[120%]`}>BUY NOW</span>
                
                
