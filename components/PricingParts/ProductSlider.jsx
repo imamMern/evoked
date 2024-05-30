@@ -54,7 +54,7 @@ export default function ProductSlider ({products, collections}) {
     };
 
    const handleButtonClick = (button, collectionTitle) => {
-    debugger
+    
         setSelectedButton(button);
         setInitCollection(collectionTitle)
       };

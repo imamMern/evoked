@@ -76,11 +76,11 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
 
 
   const checkoutNow = () => {
-    debugger
+    
     const getCheckOuturl = JSON.parse(window.sessionStorage.getItem("checkoutUrl"))
 
 
-    let urlCheck = getCheckOuturl.data.cartLinesAdd.cart.checkoutUrl
+    let urlCheck = getCheckOuturl && getCheckOuturl.data.cartLinesAdd.cart.checkoutUrl
     
     if(getCheckOuturl != undefined) {
       router.push(urlCheck)
@@ -102,7 +102,7 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
       let lines = []
       selectedImages.forEach((d, i) => {
         console.log("itemCount", content)
-        debugger
+        
       const vert  = {
           "merchandiseId" : d.variants.edges[2].node.id,
           "quantity" : parseInt("1"),

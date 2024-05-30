@@ -61,7 +61,7 @@ const OneTimePurchaseBundleBox = () => {
         });
         const cartid = window.sessionStorage.getItem("cartId");
         const getCheckOutUrl = await CheckoutUrlWithSellingPlanId(cartid, lines, "")
-        const url = getCheckOutUrl.data.cartLinesAdd.cart.checkoutUrl;
+        const url = getCheckOutUrl && getCheckOutUrl.data.cartLinesAdd.cart.checkoutUrl;
         if(url){
           window.localStorage.removeItem("cartItems")
           window.sessionStorage.removeItem("cartId");
