@@ -169,13 +169,14 @@ export async function getProductByCollection() {
   }
 
 
-export async function addToCart(id, quantity) {
+export async function addToCart(line) {
   const createCartMutation =`
     mutation createCart($cartInput: CartInput) {
       cartCreate(input: $cartInput) {
         cart {
           id
           totalQuantity
+          checkoutUrl
         }
       }
     }
@@ -183,14 +184,19 @@ export async function addToCart(id, quantity) {
 
     const variables = {
     cartInput : {
-        lines: [
-          {
-            "quantity": parseInt(quantity),
-            "merchandiseId": id
-          },
-        ],
+        lines: line,
       },
     };
+    // const variables = {
+    // cartInput : {
+    //     lines: [
+    //       {
+    //         "quantity": parseInt(quantity),
+    //         "merchandiseId": id
+    //       },
+    //     ],
+    //   },
+    // };
   return ShopifyFrontData(createCartMutation, variables );
 }
 
@@ -239,7 +245,7 @@ export async function CreateCart(id, quantity) {
   return ShopifyFrontData(createMutation, variables );
 }
 
-export async function updateCart(cartId, itemId, quantity) {
+export async function updateCart(cartId, itemId, id, quantity) {
   const updateCartMutation = gql`
     mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
       cartLinesAdd(cartId: $cartId, lines: $lines) {
@@ -253,6 +259,7 @@ export async function updateCart(cartId, itemId, quantity) {
     cartId: cartId,
     lines: [
       {
+        id:id,
         quantity: parseInt(quantity),
         merchandiseId: itemId,
       },
@@ -317,7 +324,7 @@ export async function removeFromCart(cartId, itemId){
       }
   }
 export async function retrieveCart(cartId) {
-  const cartQuery = gql`
+  const cartQuery = `
     query cartQuery($cartId: ID!) {
       cart(id: $cartId) {
         id
@@ -362,12 +369,13 @@ export async function retrieveCart(cartId) {
   const variables = {
     cartId,
   };
-  try {
-    const data = await graphQLClient.request(cartQuery, variables);
-    return data.cart;
-  } catch (error) {
-    throw new Error(error);
-  }
+  return ShopifyFrontData(cartQuery, variables );
+  // try {
+  //   const data = await graphQLClient.request(cartQuery, variables);
+  //   return data.cart;
+  // } catch (error) {
+  //   throw new Error(error);
+  // }
 }
 
 export const getProduct = async (id) => {

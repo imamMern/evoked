@@ -2,12 +2,13 @@ import { useDarkMode } from "@/utils/DarkModeContext";
 import { Remove } from "@/utils/Helpers";
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { getCheckoutUrl, CheckoutUrlWithSellingPlanId } from "../../utils/shopify"
+import { getCheckoutUrl, CheckoutUrlWithSellingPlanId, addToCart } from "../../utils/shopify"
 import { usePricing } from "@/utils/PricingContext";
 import CheckMart from "@/utils/CheckMart";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { useRouter } from 'next/navigation'
+
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -17,7 +18,7 @@ import 'swiper/css/scrollbar';
 const OneTimePurchaseBundleBox = () => {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
     const {show1, setShow1,selectedPlan, selectedPlan2, count, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, cartItems, setDiscount50, shipping, setShipping, selector, setSelector, selectedOptions2, setSelectedOptions2 } = usePricing();
-
+    const userMsgFormRef = useRef<typeof CRXToaster>(null);
     const Router = useRouter()
     const data2 = [
         { name:'Perfume Set', rate:'£45', rate50:'£23', shipping:'Add 1 more to save £20',shippingProgress:'Add 1 more to get 1 x free perfume + £20 off', includes:'What’s included:', firstPoint:' x 100ml perfume (lasts 2 months)',firstPoint50:' x 50ml perfume (lasts 2 months)', lastPoint:' x 5ml sample (free compliment)',spray:'£0.05 per spray', discount:'£60', discount50:'£30' },
@@ -50,29 +51,50 @@ const OneTimePurchaseBundleBox = () => {
         
         let lines = []
         const cartItem = JSON.parse(window.localStorage.getItem("cartItems"))
-        cartItem.forEach((d, i) => {
-          console.log("itemCount", content)
+
+        if(selectedImages.length > 0) {
+          
+          selectedImages.forEach(element => {
+            const vert  = {
+              "merchandiseId" : element.variants.edges[2].node.id,
+              "quantity" : parseInt("1"),
+            }
+            lines.push(vert)
+          })
+          
+        }
+        let checkoutUrl;
+        if(lines.length > 0) {
+           const dataUrl = await addToCart(lines);
+           checkoutUrl = dataUrl.data.cartCreate?.cart.checkoutUrl;
+        }else {
+          checkoutUrl = "/"
+        }
+        
+        // cartItem.forEach((d, i) => {
+        //   console.log("itemCount", content)
          
-        const vert  = {
-            "merchandiseId" : d.itemId,
-            "quantity" : parseInt(d.quantity),
-          }
-          lines.push(vert)
-        });
-        const cartid = window.sessionStorage.getItem("cartId");
-        const getCheckOutUrl = await CheckoutUrlWithSellingPlanId(cartid, lines, "")
-        const url = getCheckOutUrl && getCheckOutUrl.data.cartLinesAdd.cart.checkoutUrl;
-        if(url){
-          window.localStorage.removeItem("cartItems")
+        // const vert  = {
+        //     "merchandiseId" : d.itemId,
+        //     "quantity" : parseInt(d.quantity),
+        //   }
+        //   lines.push(vert)
+        // });
+        // const cartid = window.sessionStorage.getItem("cartId");
+        // const getCheckOutUrl = await CheckoutUrlWithSellingPlanId(cartid, lines, "")
+        // const url = getCheckOutUrl && getCheckOutUrl.data.cartLinesAdd.cart.checkoutUrl;
+        if(checkoutUrl){
           window.sessionStorage.removeItem("cartId");
-          Router.push(url)
+          Router.push(checkoutUrl)
 
         }else{
           Router.push("/")
+          
         }
       }
   return (
     <>
+    
      {
             show1 === 2 && (
               <div className="2xl:max-w-container lg:w-[90%] md:w-full mx-auto flex md:flex-row lg:flex-row flex-col justify-between md:gap-[50px] lg:gap-x-[40px]  2xl:gap-x-[60px] items-center">

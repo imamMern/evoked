@@ -2,7 +2,7 @@ import { useDarkMode } from "@/utils/DarkModeContext";
 import { Remove } from "@/utils/Helpers";
 import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { removeFromCart, CheckoutUrlWithSellingPlanId } from "../../utils/shopify"
+import { removeFromCart, CheckoutUrlWithSellingPlanId, retrieveCart, addToCart } from "../../utils/shopify"
 import { usePricing } from "@/utils/PricingContext";
 import CheckMart from "@/utils/CheckMart";
 import Link from "next/link";
@@ -61,14 +61,20 @@ const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
     await removeFromCart(cartId, productVId)
   };
 
+  const AddToCartRetive = async () => {
+    let cartId = window.sessionStorage.getItem("cartId");
+    const getCartItem = cartId && await retrieveCart(cartId)
+    //setSelectedImages(getCartItem)
+    console.log("retrive", getCartItem)
+  }
 useEffect(() => {
   if(selectedImages && selectedImages.length == 0) {
-    debugger
-    setSelectedImages(JSON.parse(window.localStorage.getItem("cartItems")))
+    AddToCartRetive()
   }
-  console.log("cartItems", cartItems)
-},[cartItems, selectedImages])
+ 
+},[cartItems])
 
+console.log("selectedImages", selectedImages)
 const selectedPlanData = data.find(item => item.name === selectedPlan);
 const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml')
   const actualPrice = selectedImages?.length === 1 ? '' : selectedImages?.length === 2 ? forFifty ? ('$' + 40 ) : ('$' + 80 ): selectedImages?.length === 3 ? forFifty ? ('$' + 60 ) : ('$' + 120) : 0;
@@ -76,17 +82,17 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
 
 
   const checkoutNow = () => {
-    
-    const getCheckOuturl = JSON.parse(window.sessionStorage.getItem("checkoutUrl"))
+    debugger
+    const getCheckOuturl = window.sessionStorage.getItem("checkoutUrl")
 
 
-    let urlCheck = getCheckOuturl && getCheckOuturl.data.cartLinesAdd.cart.checkoutUrl
-    
+    //let urlCheck = getCheckOuturl && getCheckOuturl.data.cartLinesAdd.cart.checkoutUrl
+    let url = getCheckOuturl
     if(getCheckOuturl != undefined) {
-      router.push(urlCheck)
-      window.sessionStorage.removeItem('cartId')
-      window.sessionStorage.removeItem("checkoutUrl")
-      window.localStorage.removeItem("cartItems")
+      router.push(url)
+      // window.sessionStorage.removeItem('cartId')
+      // window.sessionStorage.removeItem("checkoutUrl")
+      // window.localStorage.removeItem("cartItems")
     }else {
       router.push("/")
     }
@@ -97,23 +103,23 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
 
   const selectionHanlder = async (e) => {
     
-    const cartid = window.sessionStorage.getItem("cartId");
     if(selectedImages.length > 0) {
-      let lines = []
-      selectedImages.forEach((d, i) => {
-        console.log("itemCount", content)
-        
-      const vert  = {
-          "merchandiseId" : d.variants.edges[2].node.id,
+      let linesData = [];
+      selectedImages.forEach(element => {
+        let veriables = {
+          "merchandiseId" : element.variants.edges[2].node.id,
           "quantity" : parseInt("1"),
-          "attributes" : {"key" : "size", "value" : "100ml"},
           "sellingPlanId" : e.target.value
         }
-        lines.push(vert)
+        linesData.push(veriables)
       });
-      const url = await CheckoutUrlWithSellingPlanId(cartid, lines, e.target.value)
-      console.log(url)
-      window.sessionStorage.setItem("checkoutUrl", JSON.stringify(url))
+
+      const CartId = await addToCart(linesData)
+      const cartIdx = CartId.data.cartCreate?.cart?.id;
+      window.sessionStorage.setItem('cartId', cartIdx)
+      // const url = await CheckoutUrlWithSellingPlanId(cartIdx, linesData, e.target.value)
+      // console.log(url)
+      window.sessionStorage.setItem("checkoutUrl", CartId.data.cartCreate?.cart.checkoutUrl)
     }
     setSelectedOptions(e.target.value)
   }

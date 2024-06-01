@@ -2,7 +2,6 @@ import Head from "next/head";
 import { getProductByCollection, getProducts } from "../utils/shopify";
 import Landing from "../components/Landing"
 export default function Home({ dataByCollection, product }) {
- 
 
   return (
     <>
@@ -14,7 +13,9 @@ export default function Home({ dataByCollection, product }) {
       </Head>
       
       <main>
+      
         <Landing products={product} collections={dataByCollection} />
+        
       </main>
     </>
   );

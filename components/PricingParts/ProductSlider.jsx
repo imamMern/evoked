@@ -21,7 +21,7 @@ import videoDark from '@/public/assets/dark-video.png'
 import prev from '@/public/assets/prev.svg'
 import next from '@/public/assets/next.svg'
 import addSet from '@/public/assets/addSet.svg'
-import { getProduct, updateCart, addToCart, SingleCartUpdate } from "../../utils/shopify"
+import { getProduct, updateCart, addToCart, retrieveCart } from "../../utils/shopify"
 
 
 export default function ProductSlider ({products, collections}) {
@@ -101,35 +101,22 @@ export default function ProductSlider ({products, collections}) {
         
         if (selectedProductImages && selectedProductImages.length < maxLimit) {
             setSelectedProductImages(prevImages => [...prevImages, perfume])
-            if(localStorage.getItem("cartItems") == null) {
-              window.localStorage.setItem("cartItems", JSON.stringify(items))
-            }else {
-              const getCartFromWindow = []
-              getCartFromWindow.push(JSON.parse(window.localStorage.getItem("cartItems")))
-              getCartFromWindow.push(items)
-              window.localStorage.setItem("cartItems", JSON.stringify(getCartFromWindow))
-            }
             
-            let cartId = window.sessionStorage.getItem("cartId");
-             
-                if (cartId) {
-                  await updateCart(cartId, items.variants.edges[2].node.id, "1");
+                if (selectedImages.length > 0) {
+                  
                   let UpdateItem = [{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}]
                   setCartItems([...cartItems, ...UpdateItem])
                   const newArry = [items]
                   setSelectedImages([...selectedImages, ...newArry]);
                   setCheckout(true);
                 } else {
-                  
-                  let data = await addToCart(items.variants.edges[2].node.id, "1");
-                  cartId = data.data.cartCreate?.cart?.id;
-                  // let checkoutUrl = data.data.cartCreate?.cart.checkoutUrl
+               
                   setCartItems([{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}])
                   setSelectedImages([items]);
-                  window.sessionStorage.setItem("cartId", cartId);
+                 
                   setCheckout(true);
                 }
-          
+                
             } else {
                 // Display an alert if the maximum limit of images is reached
                 alert('You have reached the maximum limit of Perfumes.');
@@ -142,10 +129,7 @@ export default function ProductSlider ({products, collections}) {
     
     const handleAddToSetOneTime = async (perfume, items) => {
       // Calculate the number of selected boxes
-      
-      
       const selectedBoxes = selectedOneTimeItems.length;
-      
       // Determine the maximum limit based on the number of selected boxes
       let maxLimit = numberOfBoxes2 - selectedBoxes;
       
@@ -156,12 +140,8 @@ export default function ProductSlider ({products, collections}) {
       } else {
           // Add the new item to both sets if there are empty boxes
          
-            let cartId = window.sessionStorage.getItem("cartId");
-            
-              if (cartId) {
+              if (selectedImages.length > 0) {
 
-             
-                await updateCart(cartId, items.variants.edges[2].node.id, "1");
                 let UpdateItem = [{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}]
                 setCartItems([...cartItems, ...UpdateItem])
                 const newArry = [items]
@@ -169,17 +149,11 @@ export default function ProductSlider ({products, collections}) {
                 setCheckout(true);
               } else {
                 
-                let data = await addToCart(items.variants.edges[2].node.id, "1");
-                cartId = data.data.cartCreate?.cart?.id;
-                // let checkoutUrl = data.data.cartCreate?.cart.checkoutUrl
                 setCartItems([{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}])
                 setSelectedImages([items]);
-                window.sessionStorage.setItem("cartId", cartId);
                 setCheckout(true);
               }
             
-          
-
           const newArry = [items]
           setSelectedOneTimeItems(prevItems => [...prevItems, perfume]);
           //setSelectedImages(prevImages => [...prevImages, ...newArry]);
