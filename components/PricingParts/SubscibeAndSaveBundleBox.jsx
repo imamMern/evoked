@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 import Router from 'next/router'
 const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { show1, setShow1, selectedPlan, setSelectedPlan, selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, selectedOptions, setSelectedOptions, itemCount, setItemCount, cartItems} = usePricing();
+  const { show1, setShow1, selectedPlan, setSelectedPlan, selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, selectedOptions, setSelectedOptions, setSelectedProductImages, itemCount, setItemCount, cartItems} = usePricing();
   const router = useRouter()
   const [selectedTrend, setSelectedTrend] = useState(true);
 
@@ -27,17 +27,30 @@ const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
   };
 
   const content = selectedPlan === 'Perfume Set' ? PerfumeContent[selectedPlan2] || [] : PerfumeContent[selectedPlan] || [];
-  
+  let retrivePlan = () => {
+    if(selectedPlan === '1 Perfume') {
+      return setSelectedPlan("Evoked Perfume Set Subscription (Every 2 Months)")
+    }else if(selectedPlan === '2 Perfume') {
+      return setSelectedPlan("Evoked Perfume Set Subscription (Every 4 Months)")
+    }else if(selectedPlan === '2 Perfume') {
+      return setSelectedPlan("Evoked Perfume Set Subscription (Every 6 Months)")
+    }else {
+      return ""
+    }
+  }
+
   let newOptions = products?.products?.edges[0]?.node?.sellingPlanGroups.edges[0].node.sellingPlans.edges
   const getOption = newOptions.length > 0 && newOptions.map((x, i) => {
-    return { value: x.node.id, label: x.node.name }
+    return { value: x.node.id, label: x.node.name, selected :  selectedPlan === "2 Perfume" ? "selected" :  ""}
   })
   const [options, setOptions] = useState([]);
   
   useEffect(() => {
+    
     setOptions(getOption)
   },[getOption.length > 0])
-  // console.log("collectionsdata", options)
+  
+  console.log("selectedPlan", getOption)
   // const options = [
   //   { value: '1', label: '1 month' },
   //   { value: '2', label: selectedPlan === '1 Perfume' ? '2 month (Recommended)' : '2 month' },
@@ -47,7 +60,7 @@ const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
   //   { value: '6', label: selectedPlan === '3 Perfumes' ? '6 month (Recommended)' : '6 month' },
   // ]
   const handleRemoveFromSet = async (boxIndex, item) => {
-    debugger
+    
     setSelectedImages(prevImages => {
       // Create a new array with the image at the specified boxIndex set to null
       const updatedImages = [...prevImages];
@@ -55,18 +68,27 @@ const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
       // Filter out any null values from the array
       return updatedImages.filter(image => image !== null) ? updatedImages.filter(image => image !== null) : updatedImages;
     });
+    setSelectedProductImages(prevImages => {
+      // Create a new array with the image at the specified boxIndex set to null
+      const updatedImages = [...prevImages];
+      updatedImages[boxIndex] = null;
+      // Filter out any null values from the array
+      return updatedImages.filter(image => image !== null) ? updatedImages.filter(image => image !== null) : updatedImages;
+    });
+
     setItemCount((prevCount) => prevCount - 1);
     const productVId = item[boxIndex].variants.edges[2].node.id
     const cartId = window.sessionStorage.getItem("cartId");
     await removeFromCart(cartId, productVId)
   };
 
-  const AddToCartRetive = async () => {
+const AddToCartRetive = async () => {
     let cartId = window.sessionStorage.getItem("cartId");
     const getCartItem = cartId && await retrieveCart(cartId)
     //setSelectedImages(getCartItem)
     console.log("retrive", getCartItem)
   }
+
 useEffect(() => {
   if(selectedImages && selectedImages.length == 0) {
     AddToCartRetive()
@@ -74,34 +96,14 @@ useEffect(() => {
  
 },[cartItems])
 
-console.log("selectedImages", selectedImages)
 const selectedPlanData = data.find(item => item.name === selectedPlan);
 const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml')
   const actualPrice = selectedImages?.length === 1 ? '' : selectedImages?.length === 2 ? forFifty ? ('$' + 40 ) : ('$' + 80 ): selectedImages?.length === 3 ? forFifty ? ('$' + 60 ) : ('$' + 120) : 0;
   const totalPrice = selectedImages?.length === 1 ? forFifty ? 20 : 40 : selectedImages?.length === 2 ? forFifty ? 30 : 60 : selectedImages?.length === 3 ? forFifty ? 37 : 75 : 0;
 
 
-  const checkoutNow = () => {
-    debugger
-    const getCheckOuturl = window.sessionStorage.getItem("checkoutUrl")
-
-
-    //let urlCheck = getCheckOuturl && getCheckOuturl.data.cartLinesAdd.cart.checkoutUrl
-    let url = getCheckOuturl
-    if(getCheckOuturl != undefined) {
-      router.push(url)
-      // window.sessionStorage.removeItem('cartId')
-      // window.sessionStorage.removeItem("checkoutUrl")
-      // window.localStorage.removeItem("cartItems")
-    }else {
-      router.push("/")
-    }
-    
-  }
-
-
-
-  const selectionHanlder = async (e) => {
+  const checkoutNow = async () => {
+   
     
     if(selectedImages.length > 0) {
       let linesData = [];
@@ -109,18 +111,33 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
         let veriables = {
           "merchandiseId" : element.variants.edges[2].node.id,
           "quantity" : parseInt("1"),
-          "sellingPlanId" : e.target.value
+          "sellingPlanId" : selectedOptions
         }
         linesData.push(veriables)
       });
 
       const CartId = await addToCart(linesData)
       const cartIdx = CartId.data.cartCreate?.cart?.id;
-      window.sessionStorage.setItem('cartId', cartIdx)
-      // const url = await CheckoutUrlWithSellingPlanId(cartIdx, linesData, e.target.value)
-      // console.log(url)
-      window.sessionStorage.setItem("checkoutUrl", CartId.data.cartCreate?.cart.checkoutUrl)
+      const urlCheckout = CartId.data.cartCreate?.cart.checkoutUrl
+      router.push(urlCheckout)
+      // window.sessionStorage.setItem('cartId', cartIdx)
+      // window.sessionStorage.setItem("checkoutUrl", CartId.data.cartCreate?.cart.checkoutUrl)
     }
+
+    //let urlCheck = getCheckOuturl && getCheckOuturl.data.cartLinesAdd.cart.checkoutUrl
+    // let url = getCheckOuturl
+    // if(getCheckOuturl != undefined) {
+    //   router.push(url)
+    // }else {
+    //   router.push("/")
+    // }
+    
+  }
+
+
+
+  const selectionHanlder = (e) => {
+    debugger
     setSelectedOptions(e.target.value)
   }
   return (
@@ -168,7 +185,14 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
                   {
                     options.length > 0 && options?.map((x, i) => {
                       
-                     return <><option className={`text-[color:var(--Brand,#28282A)] 2xl:text-lg lg:text-[16px] not-italic font-normal leading-[normal]`} key={x.value} name={x.value} value={x.value}>
+                     return <>
+                     <option 
+                     className={`text-[color:var(--Brand,#28282A)] 2xl:text-lg lg:text-[16px] not-italic font-normal leading-[normal]`} 
+                      key={x.value} 
+                      name={x.value} 
+                      value={x.value}
+                      selected={x.selected}
+                     >
                         {x.label}
                         </option></>
                     })

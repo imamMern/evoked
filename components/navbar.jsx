@@ -14,7 +14,7 @@ const Navbar = () => {
               </div>
               <div className="flex items-center gap-x-[30px]">
                  
-                  <Link href='/discovery-kit'>
+                  <Link href='/discovery-kit/'>
                   <button className='flex justify-center items-center gap-2.5 px-5 py-[12px] bg-white rounded-[var(--md,8px)] border-[color:var(--Brand,#28282A)] shadow-[2px_2px_0px_0px_#FFF] border-[1.5px] border-solid text-[color:var(--Brand,#28282A)] text-[10px] lg:text-base not-italic font-semibold leading-[normal] uppercase'>TRY DISCOVERY SET</button>
                   </Link>
                   {/* <button className="flex justify-center items-center gap-10 ">
