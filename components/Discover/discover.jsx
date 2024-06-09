@@ -11,13 +11,13 @@ import FooterDiscovery from './FooterDiscovery'
 import KitSlider from './KitSlider'
 import Set from './Set'
 
-const Discover = () => {
+const Discover = ({product, dataByCollection , allCollections}) => {
   return (
     <div>
          <DarkModeProvider>
           <NavbarDiscover/>
-          <Set/>
-          <KitSlider/>
+          <Set product={dataByCollection} />
+          <KitSlider collections={allCollections} />
           <EvokedBrand/>
           <ReviewSlider/>
           <OtherBrands/>

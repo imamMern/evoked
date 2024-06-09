@@ -1,6 +1,6 @@
 'use client'
 import { useDarkMode } from '@/utils/DarkModeContext';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import "slick-carousel/slick/slick.css";
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -12,9 +12,17 @@ import 'swiper/css/navigation';
 import video from '@/public/assets/video.png'
 import videoDark from '@/public/assets/dark-video.png'
 import Image from 'next/image';
-const KitSlider = () => {
+const KitSlider = ({collections}) => {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
     const [firstSwiper, setFirstSwiper] = useState(null);
+    const [products, setProducts] = useState();
+    const [initCollection, setInitCollection] = useState("Men's Perfumes");
+    const collectionsData = collections.collections.edges.map((x) => { return x.node });
+    const [selectedButton, setSelectedButton] = useState(1);
+    const handleButtonClick = (button, name) => {
+      setSelectedButton(button);
+      setInitCollection(name)
+    };
     const Links = [
       {link:'Men' , link2:  'Women', link3: 'Unisex'},
       {link:'Men' , link2:  'Women', link3: 'Unisex'},
@@ -23,30 +31,48 @@ const KitSlider = () => {
       {link:'Men' , link2:  'Women', link3: 'Unisex'},
       
   ]
-  const [selectedButton, setSelectedButton] = useState(1);
-  const handleButtonClick = (button) => {
-    setSelectedButton(button);
-  };
+
+  const RenderProducts = () => {
+    const data =  collectionsData.find((x) => {
+      if(x.title == initCollection) {
+        return x.products.edges.map((d) => {return d.node})
+      }
+    })
+    return data;
+  }
+
+  useEffect(() => {
+    const productsData = RenderProducts();
+    debugger
+    setProducts(productsData.products.edges);
+
+  },[initCollection])
+
+  useEffect(() => {
+    console.log("List of products updated:", products?.products?.edges);
+ },[products])
+
+  console.log("collections", collections)
     return (
         <section className={`lg:py-[100px] py-[50px] ${isDarkMode ? 'bg-[#171717] duration-300' : 'bg-white duration-300'}`}>
             <div className="lg:max-w-container w-[90%] mx-auto relative flex flex-col justify-center items-center">
                 <h2 className={`lg:text-5xl text-center lg:w-auto w-[305px] text-[22px] not-italic font-bold leading-[130%] lg:leading-[normal] capitalize ${isDarkMode ? 'text-white': 'text-[color:var(--Brand,#28282A)]'}`}>What’s Inside</h2>
                 <span className={`lg:gap-x-[10px] inline-flex justify-center items-start  px-2.5 py-2 rounded-[var(--lg,12px)] border ${isDarkMode ? 'border-white' : 'border-[color:var(--black,#171717)]'} border-solid lg:mt-[40px]`}>
       <button
-        onClick={() => handleButtonClick(1)}
+        onClick={() => handleButtonClick(1, "Men's Perfumes")}
         className={`${selectedButton === 1 ? ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[4px] text-[12px] lg:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-primary bg-white' : 'bg-[#171717] text-white'}` : ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[4px] text-[12px] lg:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white bg-transparent' : 'bg-transparent text-[#28282A66]'}`}`}
       >
         Men’s Kit
               </button>
              
       <button
-        onClick={() => handleButtonClick(2)}
+        onClick={() => handleButtonClick(2, "Women's Perfumes")}
         className={`${selectedButton === 2 ? ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[4px] text-[12px] lg:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-primary bg-white' : 'bg-[#171717] text-white'}` : ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[4px] text-[12px] lg:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white bg-transparent' : 'bg-transparent text-[#28282A66]'}`}`}
       >
         Women’s Kit
       </button>
       <button
-        onClick={() => handleButtonClick(3)}
+        onClick={() => handleButtonClick(3, "Unisex Perfumes")}
         className={`${selectedButton === 3 ? ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[4px] text-[12px] lg:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-primary bg-white' : 'bg-[#171717] text-white'}` : ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[4px] text-[12px] lg:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white bg-transparent' : 'bg-transparent text-[#28282A66]'}`}`}
       >
         Unisex Kit
@@ -99,7 +125,7 @@ const KitSlider = () => {
                         },
                       }}
                     >
-                        {Links.map((item) => (
+                        {/* {Links.map((item) => (
                             <SwiperSlide key={item.link2}>
                                     <div  className={`2xl:w-[273px] w-full h-[200px] rounded-[4px] ${isDarkMode ? 'bg-[#D9D9D9]' : 'bg-[#D9D9D9]'}`}>
                                         {
@@ -108,8 +134,21 @@ const KitSlider = () => {
                                     </div>
                                 </SwiperSlide>
                         ))
+                        } */}
+
+                        {products?.length > 0 && products?.map((item, index) => (
+                            <SwiperSlide key={item.node.id}>
+                                    <div  className={`2xl:w-[273px] w-full h-[200px] miniSlider rounded-[4px] ${isDarkMode ? 'bg-[#D9D9D9]' : 'bg-[#D9D9D9]'}`}>
+                                        {
+                                             <Image width={400} height={450} src={item.node.featuredImage?.url} alt="Perfume" className='customImage' />
+                                        }
+                                        {
+                                          <div className="producttitle">{item.node.title}</div>
+                                        }
+                                    </div>
+                                </SwiperSlide>
+                        ))
                         }
-                    
                     
                     
                   </Swiper>

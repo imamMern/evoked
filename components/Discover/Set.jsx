@@ -14,8 +14,13 @@ import videoDark from '@/public/assets/dark-video.png'
 import Image from 'next/image';
 import CheckMart from '@/utils/CheckMart';
 import { Car, PerfumeSpray, Piggy, Select, Unselect } from '@/utils/Helpers';
-const Set = () => {
+import { useRouter } from 'next/navigation'
+
+import { addToCart } from "../../utils/shopify"
+const Set = ({product}) => {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
+    const [checkout, setCheckout] = useState();
+    const router = useRouter()
     const [firstSwiper, setFirstSwiper] = useState(null);
     const Links = [
       {link:kit },
@@ -26,10 +31,47 @@ const Set = () => {
       
   ]
 
+  
+  
   const [selectedButton, setSelectedButton] = useState(1);
   const handleButtonClick = (button) => {
     setSelectedButton(button);
   };
+
+  const addtocartDiscover = async (e) => {
+    
+    const sellingPlanId = product.node.products.edges[0].node.sellingPlanGroups.edges[0].node.sellingPlans.edges[0].node.id;
+
+
+    let veriables
+    if(selectedButton == 1) {
+      veriables = {
+        "merchandiseId" : e.target.value,
+        "quantity" : parseInt("1"),
+        "sellingPlanId" : sellingPlanId
+      }
+    }else {
+      veriables = {
+        "merchandiseId" : e.target.value,
+        "quantity" : parseInt("1"),
+        
+      }
+    }
+    
+    const checkoutUrl = await addToCart(veriables)
+    if(checkoutUrl){
+      setCheckout(checkoutUrl.data.cartCreate.cart.checkoutUrl)
+    }
+    
+  }
+
+  const CheckOutRouting = () => {
+      if(checkout) {
+        router.push(checkout)
+      }else {
+        return false
+      }
+  }
     return (
         <section>
         <div className={`overflow-x-hidden ${isDarkMode ? 'bg-[#171717] duration-300' : 'bg-[#F4F4F4] duration-300'}`}>
@@ -132,11 +174,19 @@ const Set = () => {
             <span className={`flex flex-col justify-center items-start gap-[15px] lg:gap-[30px] self-stretch p-[20px] lg:p-[30px] rounded-[var(--md,8px)] border border-solid  mt-[20px] ${isDarkMode ? 'border-white bg-brand' : 'border-black bg-white'}`}>
             <div className="flex lg:flex-row flex-col items-center justify-center gap-x-[10px]">
                 <p className={`lg:text-base text-[14px] not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white' : 'text-[color:var(--black,#171717)] '}`}>Pick your kit:</p>
-                <select name="" id="" className={`px-[5px] lg:px-[10px] lg:w-auto lg:mt-0 mt-[10px] lg:text-[16px] text-[14px] w-[100%] py-[5px] bg-transparent border  rounded-[4px] outline-none ${isDarkMode ? 'border-white text-white' : 'border-[#28282A] text-[#28282A] '}`}>
-                      <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Men’s Discovery Kit (24 x 5ml perfumes)</option>
+                <select onChange={(e) => {addtocartDiscover(e)}} name="" id="" className={`px-[5px] lg:px-[10px] lg:w-auto lg:mt-0 mt-[10px] lg:text-[16px] text-[14px] w-[100%] py-[5px] bg-transparent border  rounded-[4px] outline-none ${isDarkMode ? 'border-white text-white' : 'border-[#28282A] text-[#28282A] '}`}>
+                      {/* <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Men’s Discovery Kit (24 x 5ml perfumes)</option>
                       <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Women’s Discovery Kit (24 x 5ml perfumes)</option>
                       <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Unisex Discovery Kit (24 x 5ml perfumes)</option>
-                  
+                   */}
+
+                   {
+                    product && product.node.products.edges?.map((x, i) => {
+                        return <option value={x.node.variants.edges[0].node.id} className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>
+                          {x.node.title}
+                        </option>
+                    })
+                   }
                   </select>
             </div>
             <div className="inline-flex lg:flex-row flex-row lg:w-auto w-[100%] justify-center items-center lg:gap-x-[10px]">
@@ -166,10 +216,17 @@ const Set = () => {
             <span className={`flex flex-col justify-center items-start gap-[30px] self-stretch p-[20px] lg:p-[30px] rounded-[var(--md,8px)] border border-solid  mt-[20px] ${isDarkMode ? 'border-white bg-brand' : 'border-black bg-white'}`}>
             <div className="flex lg:flex-row flex-col items-center justify-start gap-x-[10px]">
                 <p className={`lg:text-base text-[14px] not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white' : 'text-[color:var(--black,#171717)] '}`}>Pick your kit:</p>
-                <select name="" id="" className={`px-[5px] lg:px-[10px] lg:w-auto lg:mt-0 mt-[10px] lg:text-[16px] text-[14px] w-[100%] py-[5px] bg-transparent border  rounded-[4px] outline-none ${isDarkMode ? 'border-white text-white' : 'border-[#28282A] text-[#28282A] '}`}>
-                      <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Men’s Discovery Kit (24 x 5ml perfumes)</option>
+                <select onChange={(e) => {addtocartDiscover(e)}} name="" id="" className={`px-[5px] lg:px-[10px] lg:w-auto lg:mt-0 mt-[10px] lg:text-[16px] text-[14px] w-[100%] py-[5px] bg-transparent border  rounded-[4px] outline-none ${isDarkMode ? 'border-white text-white' : 'border-[#28282A] text-[#28282A] '}`}>
+                      {/* <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Men’s Discovery Kit (24 x 5ml perfumes)</option>
                       <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Women’s Discovery Kit (24 x 5ml perfumes)</option>
-                      <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Unisex Discovery Kit (24 x 5ml perfumes)</option>
+                      <option className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>Unisex Discovery Kit (24 x 5ml perfumes)</option> */}
+                       {
+                    product && product.node.products.edges?.map((x, i) => {
+                        return <option value={x.node.variants.edges[0].node.id} className={`text-[color:var(--Brand,#28282A)] text-[12px] lg:text-[16px] not-italic font-normal leading-[normal]`}>
+                          {x.node.title}
+                        </option>
+                    })
+                   }
                   
                   </select>
             </div>
@@ -181,7 +238,7 @@ const Set = () => {
               </button>  
              {
                 selectedButton === 1 && 
-                ( <button className={`flex mt-[30px]  justify-between items-center px-[20px] lg:px-[30px] lg:py-[18px] py-[12px] rounded-[var(--md,8px)] border  border-solid ${isDarkMode ? 'border-[color:var(--black,#171717)] shadow-[4px_4px_0px_0px_#FFF] bg-white' : 'shadow-[4px_4px_0px_0px_#171717] border-white bg-primary'}`}>
+                ( <button onClick={CheckOutRouting} className={`flex mt-[30px]  justify-between items-center px-[20px] lg:px-[30px] lg:py-[18px] py-[12px] rounded-[var(--md,8px)] border  border-solid ${isDarkMode ? 'border-[color:var(--black,#171717)] shadow-[4px_4px_0px_0px_#FFF] bg-white' : 'shadow-[4px_4px_0px_0px_#171717] border-white bg-primary'}`}>
                 <span className={` ${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[16px] lg:text-[22px] not-italic font-bold leading-[120%]`}>SUBSCRIBE NOW</span>
              
                 <span className={`${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[16px] lg:text-[32px] not-italic font-bold leading-[120%] flex items-center`}>
@@ -198,7 +255,7 @@ const Set = () => {
              }
              {
                 selectedButton === 2 && 
-                ( <button className={`flex mt-[30px]  justify-between items-center px-[20px] lg:px-[30px] lg:py-[18px] py-[12px] rounded-[var(--md,8px)] border  border-solid ${isDarkMode ? 'border-[color:var(--black,#171717)] shadow-[4px_4px_0px_0px_#FFF] bg-white' : 'shadow-[4px_4px_0px_0px_#171717] border-white bg-primary'}`}>
+                ( <button onClick={CheckOutRouting} className={`flex mt-[30px]  justify-between items-center px-[20px] lg:px-[30px] lg:py-[18px] py-[12px] rounded-[var(--md,8px)] border  border-solid ${isDarkMode ? 'border-[color:var(--black,#171717)] shadow-[4px_4px_0px_0px_#FFF] bg-white' : 'shadow-[4px_4px_0px_0px_#171717] border-white bg-primary'}`}>
                 <span className={` ${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[16px] lg:text-[22px] not-italic font-bold leading-[120%]`}>BUY NOW</span>
              
                 <span className={`${isDarkMode ? 'text-[#28282A]' : 'text-white'} text-[16px] lg:text-[32px] not-italic font-bold leading-[120%] flex items-center`}>
