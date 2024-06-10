@@ -92,19 +92,34 @@ useEffect(() => {
 function getInitialDeviceSize() {
   const innerWidth = window.innerWidth;
   if (innerWidth <= 480) { // Mobile
-    return 4300;
+    return 4200;
   } else if (innerWidth <= 768) { // Small tablet
-    return 4500;
+    return 4400;
   } else if (innerWidth <= 1024) { // Large tablet
-    return 4830;
-  }else if (innerWidth <= 1424) { // Large tablet
-    return 5550;
+    return 4730;
+  }
+  else if (innerWidth <= 1224) { // Large Laptop or desktop
+    return 4750;
+  }
+  else if (innerWidth <= 1324) { // Large Laptop or desktop
+    return 4950;
+  }
+  else if (innerWidth <= 1424) { // Large Laptop or desktop
+    return 5350;
+  }
+  else if (innerWidth <= 1524) { // Large Laptop or desktop
+    return 5450;
+  }
+  else if (innerWidth <= 1624) { // Large Laptop or desktop
+    return 5650;
+  }
+  else if (innerWidth <= 1724) { // Large Laptop or desktop
+    return 5650;
   }
    else { // PC or larger devices
-    return 6300;
-  }
+    return 5850;
+  }
 }
-
 
 
   return (

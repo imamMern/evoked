@@ -113,7 +113,6 @@ export default function ProductSlider ({products, collections}) {
                
                   setCartItems([{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}])
                   setSelectedImages([items]);
-                 
                   setCheckout(true);
                 }
                 
@@ -134,21 +133,19 @@ export default function ProductSlider ({products, collections}) {
       let maxLimit = numberOfBoxes2 - selectedBoxes;
       
       // Check if the number of selected boxes exceeds the maximum limit
-      if (selectedBoxes > count) {
+      if (selectedBoxes >= count) {
           // Display an alert if there are no more empty boxes
           alert('You have reached the maximum limit of boxes.');
       } else {
           // Add the new item to both sets if there are empty boxes
          
               if (selectedImages.length > 0) {
-
                 let UpdateItem = [{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}]
                 setCartItems([...cartItems, ...UpdateItem])
                 const newArry = [items]
                 setSelectedImages([...selectedImages, ...newArry]);
                 setCheckout(true);
               } else {
-                
                 setCartItems([{"itemId" : items.variants.edges[2].node.id, "quantity" : "1"}])
                 setSelectedImages([items]);
                 setCheckout(true);
@@ -310,16 +307,25 @@ export default function ProductSlider ({products, collections}) {
                                   )
                                 }
 
-{
-                                  show1 === 2 && (
-                                    selectedProductImages.length < count  ? (
-                                      <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] ${index === currentIndex ? 'block' : 'hidden'}  lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
-                                                       </button>
-                                 ) : (
-                                   <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl ${index === currentIndex ? 'block' : 'hidden'}  not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
-                                                    </button>
-                                 )
-                                  )
+                                {
+                                //   show1 === 2 && (
+                                //     selectedProductImages.length < count  ? (
+                                //       <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] ${index === currentIndex ? 'block' : 'hidden'}  lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
+                                //                        </button>
+                                //  ) : (
+                                //    <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl ${index === currentIndex ? 'block' : 'hidden'}  not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
+                                //                     </button>
+                                //  )
+                                //   )
+                                show1 === 2 && (
+                                  selectedImages.length < count  ? (
+                                    <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] ${index === currentIndex ? 'block' : 'hidden'}  lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image priority src={addSet} alt="Set"/>
+                                                     </button>
+                               ) : (
+                                 <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3 ,  item.node)}  className={`w-[220px] flex mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl ${index === currentIndex ? 'block' : 'hidden'}  not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image priority src={addSet} alt="Set"/>
+                                                  </button>
+                               )
+                                )
                                 }
                    
                      
