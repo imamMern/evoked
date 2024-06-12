@@ -9,7 +9,7 @@ export default function Home({ dataByCollection, product }) {
         <title>Evoked</title>
         <meta name="description" content="Evoked" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="./icon.svg" />
       </Head>
       
       <main>

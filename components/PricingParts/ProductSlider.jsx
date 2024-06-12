@@ -7,7 +7,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { useRouter } from 'next/navigation'
 import Router from 'next/router'
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -17,23 +16,20 @@ import { usePricing } from "@/utils/PricingContext";
 import perfume from '@/public/assets/perfumeCollect.png'
 import blue from '@/public/assets/blue.png'
 import brown from '@/public/assets/brown.png'
-import videoDark from '@/public/assets/dark-video.png'
-import prev from '@/public/assets/prev.svg'
-import next from '@/public/assets/next.svg'
 import addSet from '@/public/assets/addSet.svg'
-import { getProduct, updateCart, addToCart, retrieveCart } from "../../utils/shopify"
+import { getProduct, updateCart, addToCart, retrieveCart, getMetaFields } from "../../utils/shopify"
 
 
 export default function ProductSlider ({products, collections}) {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
     const {show1, setShow1,selectedPlan, setSelectedPlan,selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, selectedOptions, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, cartItems, setCartItems, selectedProductImages, setSelectedProductImages  } = usePricing();
-    const [dropdownOpen1, setDropdownOpen1] = useState(false);
-    const [dropdownOpen2, setDropdownOpen2] = useState(false);
+    const [dropdownOpen1, setDropdownOpen1] = useState({});
+    const [dropdownOpen2, setDropdownOpen2] = useState({});
     const [initCollection, setInitCollection] = useState("Men's Perfumes");
     const [listProducts, setListProducts] = useState([]);
     const collectionsData = collections.collections.edges.map((x) => { return x.node });
     const [checkout, setCheckout] = useState(false);
-
+console.log(collectionsData)
     const RenderProducts = () => {
       
       const data =  collectionsData.find((x) => {
@@ -45,12 +41,18 @@ export default function ProductSlider ({products, collections}) {
         return data;
     }
 
-    const toggleDropdown1 = () => {
-      setDropdownOpen1(!dropdownOpen1);
+    const toggleDropdown1 = (index) => {
+      setDropdownOpen1(prevState => ({
+        ...prevState,
+        [index]: !prevState[index]
+      }));
     };
     
-    const toggleDropdown2 = () => {
-      setDropdownOpen2(!dropdownOpen2);
+    const toggleDropdown2 = (index) => {
+      setDropdownOpen2(prevState => ({
+        ...prevState,
+        [index]: !prevState[index]
+      }));
     };
 
    const handleButtonClick = (button, collectionTitle) => {
@@ -76,7 +78,6 @@ export default function ProductSlider ({products, collections}) {
         {link:perfume, link2:  blue , link3: brown},
         {link:perfume, link2:  blue , link3: brown},
         {link:perfume, link2:  blue , link3: brown},
-        
       ]
       
       const [currentIndex, setCurrentIndex] = useState(Math.floor(Links.length / 2)); // Start with middle slide
@@ -87,7 +88,7 @@ export default function ProductSlider ({products, collections}) {
         // Update the currentIndex based on the realIndex provided by Swiper
         setCurrentIndex(swiper.realIndex);
       };
-      const handleAddToSet = async(perfume, items) => {
+      const handleAddToSet = async (perfume, items) => {
         // Determine the maximum limit based on the selected plan
         let maxLimit = 0;
         if (selectedPlan === '1 Perfume') {
@@ -203,7 +204,7 @@ export default function ProductSlider ({products, collections}) {
                         nextEl: '.swiper-button-next1',
                       }}
                       
-                      spaceBetween={0}
+                      spaceBetween={30}
                       slidesPerView= "auto"
                       loop={true}
                       allowTouchMove={true}
@@ -253,9 +254,9 @@ export default function ProductSlider ({products, collections}) {
                         
                       return (
                      
-              <SwiperSlide key={selectedButton == item.title} className={`lg:w-full sm:w-[100%] md:w-[100%] w-[70%]  ${index === currentIndex  ? 'focus' : 'blur relative z-[-10]'}`} virtualIndex={index}>
-                <div className={`flex relative flex-col select-none items-center gap-[25px]  rounded-[var(--md,8px)]  ${index === currentIndex ? `border ${isDarkMode ? 'border-white' : 'border-[color:var(--black,#171717)]'} border-solid px-20 py-10` : 'px-[30px] py-[20px]'}`}>
-                  <Image width={400} height={450} src={item.node.featuredImage?.url} alt="Perfume" className={index === currentIndex ? ' lg:w-[100%] lg:h-[100%] md:w-full md:h-full sm:w-[50%] sm:h-[50%]  w-[90%] h-full' : 'w-[50%] h-[50%] md:w-[40%] md:h-[40%] lg:w-[50%] lg:h-[50%] sm:w-[30%] sm:h-[30%]'} />
+              <SwiperSlide key={selectedButton == item.title} className={`lg:w-full border ${isDarkMode ? 'border-white' : 'border-primary'} py-[40px] rounded-[8px] sm:w-[100%] md:w-[100%] w-[70%] `} virtualIndex={index}>
+                <div className={`flex relative flex-col select-none items-center gap-[25px]  rounded-[var(--md,8px)]  `}>
+                  <Image width={400} height={450} src={item.node.featuredImage?.url} alt="Perfume" className={ `w-[50%] h-[50%] md:w-[40%] md:h-[40%] lg:w-[50%] lg:h-[50%] sm:w-[30%] sm:h-[30%]`} />
                   <div className="flex flex-col justify-center ">
                   <span className={`text-center text-[20px] ${isDarkMode ? 'text-white' : 'text-[#28282A]'} lg:text-[28px] not-italic font-medium leading-[120%]`}>{item.node.title}</span>
                     <div className="flex items-end mt-[10px] justify-center">
@@ -270,106 +271,61 @@ export default function ProductSlider ({products, collections}) {
                     </div>
                     <span className=" w-[300px] mx-auto mt-[25px] flex flex-col justify-center">
                       <h6 className={` text-center text-[14px] lg:text-lg not-italic font-normal leading-[120%] ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[color:var(--Brand,#28282A)]'}`}>
-                      Smells Like Dior Sauvage
+                      {item.node.metafields[0]?.value}
                       </h6>
-                    <div className={`inline-flex mt-[10px] ${index === currentIndex ? 'block' : 'hidden'} mx-auto flex-col justify-center items-center  px-2.5 py-[5px] rounded-[var(--sm,4px)] border  border-solid ${isDarkMode ? 'border-[#454547] text-[#FFFFFFCC]' : 'text-[#28282A] border-[color:var(--Brand,#28282A)]'}`}>
-                      <button className={`flex w-48 ${index === currentIndex ? 'block' : 'hidden'}  justify-between items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-center text-[14px] lg:text-lg not-italic leading-[120%] ${dropdownOpen1 ? 'font-bold' : 'font-normal'} `} onClick={toggleDropdown1}>Ingredients <Dropdown color={isDarkMode ? 'white' : '#28282A'} /> </button>
-        {index === currentIndex ? dropdownOpen1 && (
+                    <div className={`inline-flex mt-[10px]  mx-auto flex-col justify-center items-center  px-2.5 py-[5px] rounded-[var(--sm,4px)] border  border-solid ${isDarkMode ? 'border-[#454547] text-[#FFFFFFCC]' : 'text-[#28282A] border-[color:var(--Brand,#28282A)]'}`}>
+                      <button className={`flex w-48   justify-between items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-center text-[14px] lg:text-lg not-italic leading-[120%] ${dropdownOpen1 ? 'font-bold' : 'font-normal'} `} onClick={() => toggleDropdown1(index)}>Ingredients <Dropdown color={isDarkMode ? 'white' : '#28282A'} /> </button>
+        {dropdownOpen1[index] && (
           <div className={`flex w-48 lg:text-[14px] text-[12px] mt-[10px] items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-start`}>
-          {item.node.description}
+          {item.node.metafields[2]?.value}
 </div>
-                      ) : dropdownOpen1 && (
-                        <div className={`hidden w-48 lg:text-[14px] text-[12px] mt-[10px] items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-start`}>
-                        {item.node.description}
-              </div>
-                                    )}
+                      ) }
                       <div className="w-[192px] h-[1px] bg-[#28282A] mx-auto my-[10px] "></div>
-        <button className={`flex w-48 ${index === currentIndex ? 'block' : 'hidden'}  justify-between items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-center text-[14px] lg:text-lg not-italic leading-[120%] ${dropdownOpen2 ? 'font-bold' : 'font-normal'}`} onClick={toggleDropdown2}>Notes <Dropdown color={isDarkMode ? 'white' : '#28282A'} /></button>
-        {index === currentIndex ? dropdownOpen2 && (
+        <button className={`flex w-48  justify-between items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-center text-[14px] lg:text-lg not-italic leading-[120%] ${dropdownOpen2 ? 'font-bold' : 'font-normal'}`} onClick={() => toggleDropdown2(index)}>Notes <Dropdown color={isDarkMode ? 'white' : '#28282A'} /></button>
+        { dropdownOpen2[index] && (
                         <div className={`flex w-48 lg:text-[14px] text-[12px] mt-[10px] items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-start`}>
-                          {item.node.description}
-          </div>) : dropdownOpen2 && (
-                        <div className={`hidden w-48 lg:text-[14px] text-[12px] mt-[10px] items-center ${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[#28282A]'} text-start`}>
-                          {item.node.description}
-          </div>) }
+                          {item.node.metafields[3]?.value}
+          </div>)  }
                                 </div>
                                 {
                                   show1 === 1 && (
                                     selectedProductImages.length < maxLimit ? (
-                                      <button  onClick={() => {handleAddToSet(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)]  mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>
+                                      <button  onClick={() => {handleAddToSet(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)]  mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>
                                         Add To Set
                                         <Image src={addSet} alt="Set"/>
                                                        </button>
                                  ) : (
-                                   <button onClick={() => {handleAddToSet(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}}  className={`w-[220px] flex ${index === currentIndex ? 'block' : 'hidden'}  mx-auto items-center justify-center gap-2.5 text-center text-[16px] lg:text-2xl not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
+                                   <button onClick={() => {handleAddToSet(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}}  className={`w-[220px] flex   mx-auto items-center justify-center gap-2.5 text-center text-[16px] lg:text-2xl not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
                                                     </button>
                                  )
                                   )
                                 }
 
                                 {
-                                //   show1 === 2 && (
-                                //     selectedProductImages.length < count  ? (
-                                //       <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] ${index === currentIndex ? 'block' : 'hidden'}  lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
-                                //                        </button>
-                                //  ) : (
-                                //    <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl ${index === currentIndex ? 'block' : 'hidden'}  not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image src={addSet} alt="Set"/>
-                                //                     </button>
-                                //  )
-                                //   )
+                        
                                 show1 === 2 && (
                                   selectedImages.length < count  ? (
-                                    <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] ${index === currentIndex ? 'block' : 'hidden'}  lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image priority src={addSet} alt="Set"/>
+                                    <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3, item.node)}  className={`w-[220px] flex  mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl not-italic font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image priority src={addSet} alt="Set"/>
                                                      </button>
                                ) : (
-                                 <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3 ,  item.node)}  className={`w-[220px] flex mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl ${index === currentIndex ? 'block' : 'hidden'}  not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image priority src={addSet} alt="Set"/>
+                                 <button onClick={() => handleAddToSetOneTime(selectedButton === 1 && item.link || selectedButton === 2 && item.link2 || selectedButton === 3 && item.link3 ,  item.node)}  className={`w-[220px] flex mx-auto items-center justify-center gap-2.5  text-center text-[16px] lg:text-2xl  not-italic cursor-not-allowed font-medium leading-[120%] px-5 py-[10px] rounded-[var(--sm,4px)] bg-opacity-[0.5] mt-[25px] ${isDarkMode ? 'bg-[#454547] text-[#FFFFFFCC]' : 'bg-primary text-white'}`}>Add To Set<Image priority src={addSet} alt="Set"/>
                                                   </button>
                                )
                                 )
                                 }
-                   
-                     
-                      
                       </span>
                   </div>
                 </div>
-                {
-                  index === currentIndex ?  <div className="swiper-button-prev1 absolute top-[40%] md:left-[-2%] left-[5%] lg:left-[-25%] cursor-pointer z-[999]">
-                  <Prev className={`lg:h-auto lg:w-auto h-[60px] w-[50px]`} color={isDarkMode ? 'white' : '#28282A'}/>
-                 
-                </div> : 
-                <div className="swiper-button-prev1 opacity-0 absolute top-[40%] md:left-[-2%] left-[5%] lg:left-[-25%] cursor-pointer z-[999]">
-                  <Prev color={isDarkMode ? 'white' : '#28282A'}/>
-  
-                </div>
-                }
-                {
-                  index === currentIndex ?  <div className="swiper-button-next1 absolute top-[40%] md:right-[-2%] right-[5%] lg:right-[-25%] cursor-pointer z-[999]">
-                  <Next className={`lg:h-auto lg:w-auto h-[60px] w-[50px]`} color={isDarkMode ? 'white' : '#28282A'}/>
-                  </div> : 
-                  <div className="swiper-button-next1 opacity-0 absolute top-[40%] md:right-[-2%] right-[5%] lg:right-[-25%] cursor-pointer z-[999]">
-                  <Next color={isDarkMode ? 'white' : '#28282A'}/>
-                  </div>
-                }
-                
-
               </SwiperSlide>
             )})
             }
-       
       </Swiper>
                   </div>
                 )
               }
-             
-             
-             
             </div>
-
     </div>
           </div>
     </>
   )
 }
-
-//export default ProductSlider

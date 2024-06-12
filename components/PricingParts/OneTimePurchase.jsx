@@ -22,7 +22,6 @@ const OneTimePurchase = () => {
       const [spray, setSpray] = useState(data2[0].spray);
       const [isOpen2, setIsOpen2] = useState(data2.map(() => false)); // isOpen for each dropdown
 
-  const dropdownRefs2 = useRef(data2.map(() => React.createRef()));
  
   const [selectedPlanColors2, setSelectedPlanColors2] = useState(data2.map(() => true)); // selectedPlanColor for each dropdown
 
@@ -39,29 +38,19 @@ const OneTimePurchase = () => {
   };
   
 
-  const toggleDropdownOneTime = (index) => {
-    setIsOpen2(prevOpen => prevOpen.map((value, i) => i === index ? !value : false)); // Close other dropdowns
-  };
+  // const toggleDropdownOneTime = (index) => {
+  //   setIsOpen2(prevOpen => prevOpen.map((value, i) => i === index ? !value : false)); // Close other dropdowns
+  // };
 
-  // Close dropdown when clicking outside
-  const handleClickOutside2 = (event, index) => {
-    const ref = dropdownRefs2.current[index]?.current; // Using optional chaining to handle null values
-    if (ref && !ref.contains(event.target)) {
-      setIsOpen2(prevOpen => prevOpen.map((value, i) => i === index ? false : value));
-    }
-  };
+  // // Close dropdown when clicking outside
+  // const handleClickOutside2 = (event, index) => {
+  //   const ref = dropdownRefs2.current[index]?.current; // Using optional chaining to handle null values
+  //   if (ref && !ref.contains(event.target)) {
+  //     setIsOpen2(prevOpen => prevOpen.map((value, i) => i === index ? false : value));
+  //   }
+  // };
   
 
-  useEffect(() => {
-    const handleClickOutsideForAll = (event) => {
-      isOpen2.forEach((value, index) => handleClickOutside2(event, index));
-    };
-
-    document.addEventListener("click", handleClickOutsideForAll);
-    return () => {
-      document.removeEventListener("click", handleClickOutsideForAll);
-    };
-  }, [isOpen2]);
   const handleIncrement =()=> {
     //setCount(prevCount => prevCount+=1);
     if (count < 10) {
@@ -250,19 +239,17 @@ const OneTimePurchase = () => {
                           
                         <h6 className={` text-[26px] lg:text-[38px] not-italic font-semibold leading-[normal] ${selectedPlan2 === name ? `${isDarkMode ? 'text-[primary]' : 'text-white'}` : `${isDarkMode ? 'text-[#FFFFFFCC]' : 'text-[white]'}`}`}>{name}</h6>
                         {/* Select  */}
-                        <div className="relative lg:ml-0 ml-[20px]" ref={dropdownRefs2.current[index]}>
+                        <div className="relative cursor-default lg:ml-0 ml-[20px]">
                           <span className="rounded-md shadow-sm">
-                            <button
-                              onClick={() => toggleDropdownOneTime(index)}
-                              type="button"
+                            <div
                               className={`flex items-center lg:gap-2.5 gap-1 lg:px-2.5 px-[5px] py-[5px] rounded-[var(--sm,4px)] border  border-solid text-[12px] lg:text-xl not-italic font-normal leading-[normal] ${selectedPlan2 === name ? `${isDarkMode ? 'text-primary border-primary' : 'text-white border-white'}` : `${isDarkMode ? 'text-white border-white' : 'text-[color:var(--Brand,#28282A)] border-[color:var(--Brand,#28282A)]'}`}`}
                               id={`options-menu-${index}`}
                               aria-haspopup="true"
                               aria-expanded={isOpen2[index] ? "true" : "false"}
                             >
                               {selectedOptions2[index]}
-                              <DownArrow2 color={selectedPlan2 === name ? `${isDarkMode ? '#171717' : 'white'}` : '#28282A'} />
-                            </button>
+                         
+                            </div>
                           </span>
               
                           {isOpen2[index] && (
@@ -279,13 +266,6 @@ const OneTimePurchase = () => {
                                   role="menuitem"
                                 >
                                   100ml
-                                </button>
-                                <button
-                                  onClick={() => handleOptionChange2("50ml", index)}
-                                  className={`${selectedOptions2[index] === "50ml" ? `${isDarkMode ? 'bg-gray-900' :'bg-gray-100'}` : ""} block w-full text-left px-4 py-2 text-sm ${isDarkMode ? 'text-white hover:bg-gray-900 hover:text-gray-100' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'} `}
-                                  role="menuitem"
-                                >
-                                  50ml
                                 </button>
                               </div>
                             </div>

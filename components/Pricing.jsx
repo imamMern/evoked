@@ -13,7 +13,7 @@ import { AppButton } from "./Button"
 
 const Pricing = ({products, collections}) => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { show1, setShow1, selectedButton, setSelectedButton, selectedPlan, setSelectedPlan, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector, selectedOptions2, setSelectedOptions2  } = usePricing();
+  const { show1, setShow1, selectedButton, setSelectedButton, selectedPlan, setSelectedPlan, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, rate, setRate, rate50, setRate50, discount, setDiscount, discount50, setDiscount50, shipping, setShipping, selector, setSelector, selectedOptions2, setSelectedOptions2, selectedProductImages, setSelectedProductImages  } = usePricing();
   const [selectedButtonDropdown, setSelectedButtonDropdown] = useState(null);
 
   const handleClick = (show) => {
@@ -33,17 +33,13 @@ const Pricing = ({products, collections}) => {
   useEffect(() => {
     setSelectedImages([]);
   }, [selectedPlan,show1]);
+  useEffect(() => {
+    setSelectedProductImages([]);
+  }, [selectedPlan,show1]);
 
   const data2 = [
     { name:'Perfume Set', rate:'£45', rate50:'£23', shipping:'Add 1 more to save £20',shippingProgress:'Add 1 more to get 1 x free perfume + £20 off', includes:'What’s included:', firstPoint:' x 100ml perfume (lasts 2 months)',firstPoint50:' x 50ml perfume (lasts 2 months)', lastPoint:' x 5ml sample (free compliment)',spray:'£0.05 per spray', discount:'£60', discount50:'£30' },
   ];
-
-
-  // Ref to hold dropdown elements
-  const dropdownRefs2 = useRef(data2.map(() => React.createRef()));
-
-  // State variables
-  const [isOpen2, setIsOpen2] = useState(data2.map(() => false)); 
 
 useEffect(() => {
   // Clear state related to one-time purchase images
@@ -131,7 +127,7 @@ function getInitialDeviceSize() {
         }`}
       >
         <Box1 className={`lg:block hidden`} color={isDarkMode ? "white" : "#454547"} />
-        <div className="lg:max-w-container w-[90%] mx-auto lg:mt-[120px]">
+        <div className="2xl:max-w-container lg:w-full w-[90%] mx-auto lg:mt-[120px]">
           <div className="flex flex-col text-center">
             <h2
               className={`text-[22px] 2xl:text-5xl lg:text-[38px] lg:mb-[25px] mb-[15px] not-italic font-bold leading-[130%] lg:leading-[normal] uppercase ${

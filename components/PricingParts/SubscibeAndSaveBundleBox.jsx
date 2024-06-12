@@ -5,12 +5,10 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { removeFromCart, CheckoutUrlWithSellingPlanId, retrieveCart, addToCart } from "../../utils/shopify"
 import { usePricing } from "@/utils/PricingContext";
 import CheckMart from "@/utils/CheckMart";
-import Link from "next/link";
 import { useRouter } from 'next/navigation'
-import Router from 'next/router'
 const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { show1, setShow1, selectedPlan, setSelectedPlan, selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, selectedOptions, setSelectedOptions, setSelectedProductImages, itemCount, setItemCount, cartItems} = usePricing();
+  const { show1, setShow1, selectedPlan, setSelectedPlan, selectedButton, setSelectedButton, selectedPlan2, setSelectedPlan2, count, setCount, selectedImages, setSelectedImages, selectedOneTimeItems, setSelectedOneTimeItems, selectedOptions, setSelectedOptions,selectedProductImages, setSelectedProductImages, itemCount, setItemCount, cartItems} = usePricing();
   const router = useRouter()
   const [selectedTrend, setSelectedTrend] = useState(true);
 
@@ -49,16 +47,8 @@ const SubscibeAndSaveBundleBox = ({isCheckout, products, collections}) => {
     
     setOptions(getOption)
   },[getOption.length > 0])
-  
   console.log("selectedPlan", getOption)
-  // const options = [
-  //   { value: '1', label: '1 month' },
-  //   { value: '2', label: selectedPlan === '1 Perfume' ? '2 month (Recommended)' : '2 month' },
-  //   { value: '3', label: '3 month' },
-  //   { value: '4', label: selectedPlan === '2 Perfumes' ? '4 month (Recommended)' : '4 month' },
-  //   { value: '5', label: '5 month' },
-  //   { value: '6', label: selectedPlan === '3 Perfumes' ? '6 month (Recommended)' : '6 month' },
-  // ]
+
   const handleRemoveFromSet = async (boxIndex, item) => {
     
     setSelectedImages(prevImages => {
@@ -102,44 +92,39 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
   const totalPrice = selectedImages?.length === 1 ? forFifty ? 20 : 40 : selectedImages?.length === 2 ? forFifty ? 30 : 60 : selectedImages?.length === 3 ? forFifty ? 37 : 75 : 0;
 
 
-  const checkoutNow = async () => {
-   
-    
-    if(selectedImages.length > 0) {
-      let linesData = [];
-      selectedImages.forEach(element => {
-        let veriables = {
-          "merchandiseId" : element.variants.edges[2].node.id,
-          "quantity" : parseInt("1"),
-          "sellingPlanId" : selectedOptions
-        }
-        linesData.push(veriables)
-      });
+ const checkoutNow = async () => {
+  if (selectedImages.length > 0) {
+    let linesData = [];
+    selectedImages.forEach(element => {
+      let variables = {
+        "merchandiseId": element.variants.edges[2].node.id,
+        "quantity": parseInt("1"),
+        "sellingPlanId": selectedOptions
+      }
+      linesData.push(variables)
+    });
 
-      const CartId = await addToCart(linesData)
-      const cartIdx = CartId.data.cartCreate?.cart?.id;
-      const urlCheckout = CartId.data.cartCreate?.cart.checkoutUrl
-      router.push(urlCheckout)
-      // window.sessionStorage.setItem('cartId', cartIdx)
-      // window.sessionStorage.setItem("checkoutUrl", CartId.data.cartCreate?.cart.checkoutUrl)
+    try {
+      const CartId = await addToCart(linesData);
+      if (CartId && CartId.data && CartId.data.cartCreate && CartId.data.cartCreate.cart && CartId.data.cartCreate.cart.checkoutUrl) {
+        const urlCheckout = CartId.data.cartCreate.cart.checkoutUrl;
+        router.push(urlCheckout);
+      } else {
+        console.error("Error: Unable to retrieve checkout URL");
+      }
+    } catch (error) {
+      console.error("Error occurred during checkout:", error);
     }
-
-    //let urlCheck = getCheckOuturl && getCheckOuturl.data.cartLinesAdd.cart.checkoutUrl
-    // let url = getCheckOuturl
-    // if(getCheckOuturl != undefined) {
-    //   router.push(url)
-    // }else {
-    //   router.push("/")
-    // }
-    
   }
+}
 
-
-
+console.log(getOption)
+const result = getOption.map(({label,value})=> label + value)
+console.log(result)
   const selectionHanlder = (e) => {
-    debugger
     setSelectedOptions(e.target.value)
   }
+  console.log(selectedOptions)
   return (
     <>
       {
@@ -165,8 +150,7 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
                   <div key={boxIndex} className={`2xl:w-[150px] 2xl:h-[150px] lg:w-[100px] lg:h-[100px] md:w-[100px] md:h-[100px] w-[60px] h-[60px] border border-solid relative ${isDarkMode ? 'bg-primary border-[color:var(--black,#171717)] shadow-[2px_2px_0px_0px_rgba(255,255,255,0.70)]' : 'bg-white border-[color:var(--black,#171717)] shadow-[2px_2px_0px_0px_#171717]'}`}>
                     {selectedImages && selectedImages[boxIndex] && (
                       <>
-                        <Image className="2xl:w-[70px] 2xl:h-[108.387px]  md:w-[50px] md:h-[76px] w-[25px] h-[40px] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex].featuredImage
-?.url} alt={`Image ${boxIndex}`} width={80} height={100}/>
+                        <Image className="2xl:w-[70px] 2xl:h-[108.387px]  md:w-[50px] md:h-[76px] w-[25px] h-[40px] absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" src={selectedImages[boxIndex].featuredImage?.url} alt={`Image ${boxIndex}`} width={80} height={100}/>
                         <button className="absolute lg:top-[-10px] top-[-6px] right-[-8px] lg:right-[-11px]" onClick={() => handleRemoveFromSet(boxIndex, selectedImages)}>
                           <Remove className={`lg:w-auto lg:h-auto  md:top-[-7px] md:right-[-8px] h-[13px] w-[13px]`} rect={isDarkMode ? 'white' : '#171717'} color={isDarkMode ? '#171717' : 'white'} />
                         </button>
@@ -180,22 +164,14 @@ const forFifty = selectedOptions[data.indexOf(selectedPlanData)].includes('50ml'
             <div className="lg:w-[40%]">
               <div className="lg:flex items-center 2xl:gap-x-[20px] lg:gap-x-[10px]">
                 <h6 className={`2xl:text-base text-[14px] lg:block hidden not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white' : 'text-[color:var(--Brand,#28282A)]'}`}>Deliver every:</h6>
-                <select onChange={(e) => selectionHanlder(e)} name="" id="" className={`px-[10px] lg:block hidden py-[5px] bg-transparent border  rounded-[4px] outline-none ${isDarkMode ? 'border-white text-white' : 'border-[#28282A] text-[#28282A]'}`}>
+                <select onChange={(e) => selectionHanlder(e)} className={`px-[10px] lg:block hidden py-[5px] bg-transparent border  rounded-[4px] outline-none ${isDarkMode ? 'border-white text-white' : 'border-[#28282A] text-[#28282A]'}`}>
                   
                   {
-                    options.length > 0 && options?.map((x, i) => {
-                      
-                     return <>
-                     <option 
-                     className={`text-[color:var(--Brand,#28282A)] 2xl:text-lg lg:text-[16px] not-italic font-normal leading-[normal]`} 
-                      key={x.value} 
-                      name={x.value} 
-                      value={x.value}
-                      selected={x.selected}
-                     >
-                        {x.label}
-                        </option></>
-                    })
+                    options.length > 0 && getOption?.map(({value, label}) => (
+                      <option className={`text-[color:var(--Brand,#28282A)] 2xl:text-lg lg:text-[16px] not-italic font-normal leading-[normal]`} key={value} value={value} selected={selectedPlan === `1 Perfume` && value === 'gid://shopify/SellingPlan/1224409193' ||
+                        selectedPlan === `2 Perfumes` && value === 'gid://shopify/SellingPlan/1224474729' ||
+                        selectedPlan === `3 Perfumes` && value === 'gid://shopify/SellingPlan/1224540265' ? true : false}>{label}</option>
+                    ))
                   }
                 </select>
               </div>
