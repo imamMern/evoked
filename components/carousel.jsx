@@ -18,9 +18,9 @@ const Carousel = () => {
                     <Star className={`lg:h-auto lg:w-auto h-[24px] w-[24px]`} color={isDarkMode ? 'white' : '#28282A'}/>
                     <Star className={`lg:h-auto lg:w-auto h-[24px] w-[24px]`} color={isDarkMode ? 'white' : '#28282A'}/>
                 </div>
-                <div className="lg:inline-block absolute top-0 right-0 z-10  hidden">
+                {/* <div className="lg:inline-block absolute top-0 right-0 z-10  hidden">
                 <Love color={isDarkMode ? 'white' : '#28282A'}/>
-                </div>
+                </div> */}
             </div>
 
       <div className={`${isDarkMode ? 'bg-[#28282A] duration-300' : 'bg-[#F4F4F4] duration-300'} relative z-20`}>

@@ -5,8 +5,6 @@ import Image from "next/image";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
-import { useRouter } from 'next/navigation'
-import Router from 'next/router'
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -80,14 +78,11 @@ console.log(collectionsData)
         {link:perfume, link2:  blue , link3: brown},
       ]
       
-      const [currentIndex, setCurrentIndex] = useState(Math.floor(Links.length / 2)); // Start with middle slide
+     
       const numberOfBoxes = 3;
       
   const numberOfBoxes2 = 10;
-      const handleSlideChange = (swiper) => {
-        // Update the currentIndex based on the realIndex provided by Swiper
-        setCurrentIndex(swiper.realIndex);
-      };
+  
       const handleAddToSet = async (perfume, items) => {
         // Determine the maximum limit based on the selected plan
         let maxLimit = 0;
@@ -118,7 +113,6 @@ console.log(collectionsData)
                 }
                 
             } else {
-                // Display an alert if the maximum limit of images is reached
                 alert('You have reached the maximum limit of Perfumes.');
             }
         
@@ -166,11 +160,11 @@ console.log(collectionsData)
   return (
     <>
      <div className={` lg:mt-[70px] mt-[30px] lg:border-t-[1px] ${isDarkMode ? 'border-white bg-primary' : 'border-primary bg-[#F4F4F4]'} border-opacity-[0.4] lg:border-b-[1px]`}>
-        <div className={`2xl:max-w-container w-[100%] mx-auto md:py-[30px] py-[30px]  lg:py-[50px]`}>
+        <div className={`2xl:max-w-container lg:w-[90%] w-[100%] mx-auto md:py-[30px] py-[30px]  lg:py-[50px]`}>
             <div>
               </div>
               <div className="lg:block flex justify-center">
-            <span className={`xxl:ml-0 ml-0 lg:ml-[50px] gap-x-[10px] inline-flex items-start gap-2.5 px-2.5 py-2 rounded-[var(--lg,12px)] border ${isDarkMode ? 'border-white' : 'border-[color:var(--black,#171717)]'} border-solid`}>
+            <span className={`xxl:ml-0 ml-0 gap-x-[10px] inline-flex items-start gap-2.5 px-2.5 py-2 rounded-[var(--lg,12px)] border ${isDarkMode ? 'border-white' : 'border-[color:var(--black,#171717)]'} border-solid`}>
       <button
         onClick={() => handleButtonClick(1, "Men's Perfumes")}
         className={`${selectedButton === 1 ? ` flex uppercase justify-center items-center gap-2.5 px-5 py-2.5 rounded-[var(--lg,12px)] text-[16px] lg:text-[16px] 2xl:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-primary bg-white' : 'bg-[#171717] text-white'}` : ` flex justify-center items-center gap-2.5 px-5 py-2.5 rounded-[var(--lg,12px)] uppercase text-[16px] lg:text-[16px] 2xl:text-lg not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white bg-transparent' : 'bg-transparent text-[#28282A]'}`}`}
@@ -199,23 +193,16 @@ console.log(collectionsData)
                      <Swiper
                      modules={[Navigation]}
                      //navigation
-                      navigation={{
-                        prevEl: '.swiper-button-prev1',
-                        nextEl: '.swiper-button-next1',
-                      }}
-                      
+                     navigation
                       spaceBetween={30}
                       slidesPerView= "auto"
-                      loop={true}
+                      loop={false}
                       allowTouchMove={true}
-                      centeredSlides={true}
                       scrollbar={{ draggable: true }}
                       mousewheel={true}
                       className="w-full h-full"
-                      
-                      pagination={{ clickable: true }}
-                      onSlideChange={(swiper) => handleSlideChange(swiper)}
-                                      initialSlide={currentIndex}
+                      onSlideChange={(swiper) => swiper}
+                                      
                                       breakpoints={{
                                         640: {
                                           slidesPerView: 2,
@@ -256,9 +243,9 @@ console.log(collectionsData)
                      
               <SwiperSlide key={selectedButton == item.title} className={`lg:w-full border ${isDarkMode ? 'border-white' : 'border-primary'} py-[40px] rounded-[8px] sm:w-[100%] md:w-[100%] w-[70%] `} virtualIndex={index}>
                 <div className={`flex relative flex-col select-none items-center gap-[25px]  rounded-[var(--md,8px)]  `}>
-                  <Image width={400} height={450} src={item.node.featuredImage?.url} alt="Perfume" className={ `w-[50%] h-[50%] md:w-[40%] md:h-[40%] lg:w-[50%] lg:h-[50%] sm:w-[30%] sm:h-[30%]`} />
+                  <Image width={400} height={450} src={item.node.featuredImage?.url} alt="Perfume" className={ `2xl:w-[200px] 2xl:h-[200px] object-contain md:w-[40%] md:h-[40%] lg:w-[200px] lg:h-[200px] sm:w-[30%] sm:h-[30%]`} />
                   <div className="flex flex-col justify-center ">
-                  <span className={`text-center text-[20px] ${isDarkMode ? 'text-white' : 'text-[#28282A]'} lg:text-[28px] not-italic font-medium leading-[120%]`}>{item.node.title}</span>
+                  <span className={`text-center text-[20px] ${isDarkMode ? 'text-white' : 'text-brand'} lg:text-[28px] not-italic font-medium leading-[120%]`}>{item.node.title}</span>
                     <div className="flex items-end mt-[10px] justify-center">
                       <div className="flex items-center ">
                       <Star12 color={isDarkMode ? 'white' : '#28282A'} />

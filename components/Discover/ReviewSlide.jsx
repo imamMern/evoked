@@ -12,6 +12,7 @@ import 'swiper/css/pagination';
 import video from '@/public/assets/video.png'
 import videoDark from '@/public/assets/dark-video.png'
 import Image from 'next/image';
+import { Autoplay } from 'swiper/modules';
 const ReviewSlider = () => {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
     const Links = [
@@ -39,7 +40,11 @@ const ReviewSlider = () => {
       <div className='lg:max-w-container w-[90%] mx-auto'>
           <div className="lg:py-[60px] py-[30px] ">
           <Swiper
-        
+        modules={[Autoplay]}
+        autoplay={{
+          delay: 1000,
+          disableOnInteraction: false,
+        }}
         slidesPerView={2}
         spaceBetween={20}
             loop={true}

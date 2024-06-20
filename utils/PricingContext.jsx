@@ -29,7 +29,7 @@ export const PricingProvider = ({ children }) => {
     const [discount50, setDiscount50] = useState(data2[0].discount50);
     const [shipping, setShipping] = useState(data2[0].shipping);
     const [selector, setSelector] = useState(false);
-    const [selectedOptions, setSelectedOptions] = useState(data.map(() => "100ml")); 
+    const [selectedOptions, setSelectedOptions] = useState("100ml"); 
     const [selectedOptions2, setSelectedOptions2] = useState(data2.map(() => "100ml"));
     const [isOpen, setIsOpen] = useState(data.map(() => false)); 
     const [itemCount, setItemCount] = useState(0);

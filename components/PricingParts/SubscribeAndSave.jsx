@@ -162,7 +162,7 @@ let discountedPrice = '';
                   <div className={`inline-flex justify-center items-center gap-x-[20px] mt-[30px] mb-[20px] py-[10px] border-b border-solid ${isDarkMode ? 'border-white' : 'border-primary'}`}>
                   { data.map(({ name }, index) => (
                      
-                    <div onClick={() => handleOptionPlanChange(name, index)} className={` text-center text-base not-italic font-normal leading-[normal] ${selectedPlan === name ? `${isDarkMode ? 'text-white' : 'text-primary'}` : `${isDarkMode ? 'text-[color:var(--brand2,#454547)]' : 'text-gray-500'}`}`}>
+                    <div onClick={() => handleOptionPlanChange(name, index)} className={` text-center text-base not-italic cursor-pointer font-normal leading-[normal] ${selectedPlan === name ? `${isDarkMode ? 'text-white' : 'text-primary'}` : `${isDarkMode ? 'text-[color:var(--brand2,#454547)]' : 'text-gray-500'}`}`}>
                       {name}
                       </div>
                      
@@ -203,18 +203,15 @@ let discountedPrice = '';
                                 }
                             </div>
                           </div>
-                          <div className="relative mt-[10px]" ref={dropdownRefs.current[index]}>
+                          <div className="relative mt-[10px]" >
                               <span className="rounded-md shadow-sm">
                                 <button
-                                  onClick={() => toggleDropdown(index)}
+                                 
                                   type="button"
                                   className={`flex items-center gap-2.5 lg:px-2.5 lg:py-[5px] p-1 rounded-[var(--sm,4px)] border  border-solid  lg:text-xl text-[12px] not-italic font-normal leading-[normal] ${selectedPlan === name ? `${isDarkMode ? 'text-primary border-primary' : 'text-white border-white'}` : `${isDarkMode ? 'text-white border-white' : 'text-[color:var(--Brand,#28282A)] border-[color:var(--Brand,#28282A)]'}`}`}
-                                  id={`options-menu-${index}`}
-                                  aria-haspopup="true"
-                                  aria-expanded={isOpen[index] ? "true" : "false"}
                                 >
-                                  {selectedOptions[index]}
-                                  {/* <DownArrow2 color={selectedPlan === name ? `${isDarkMode ? '#171717' : 'white'}` : `${isDarkMode ? 'white' : '#28282A'}`} /> */}
+                                  100ml
+              
                                 </button>
                               </span>
                   
@@ -233,13 +230,7 @@ let discountedPrice = '';
                                     >
                                       100ml
                                     </button>
-                                    {/* <button
-                                      onClick={() => handleOptionChange("50ml", index)}
-                                      className={`${selectedOptions[index] === "50ml" ? `${isDarkMode ? 'bg-transparent' :'bg-gray-100'}` : ""} block w-full text-left px-4 py-2 text-sm ${selectedPlan === name ? `${isDarkMode ? 'text-white' :'text-primary hover:bg-gray-100 hover:text-gray-900'}` : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}
-                                      role="menuitem"
-                                    >
-                                      50ml
-                                    </button> */}
+                                  
                                   </div>
                                 </div>
                               )}

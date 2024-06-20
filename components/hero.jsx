@@ -11,21 +11,23 @@ import ArrowRight from '@/utils/ArrowRight';
 const Hero = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   let Lists = [
-    { name: "Smell delicious, get compliments with iconic designer-like scents at wallet-friendly prices" },
-    { name: "Eau De Parfum, Lasts 24h on average (2-3x longer than typical designer scents)" },
-    { name: "Vegan-Friendly, Suitable for all skin types, Hand-mixed in small batches" },
-    { name: "Try 100% risk-free first, then decide with our 30-day money back promise" },
+    { name: "Smell delicious, get compliments and feel confident daily" },
+    { name: "Save up to 90% compared to high-street brands for same quality" },
+    { name: "Premium Eau De Parfum perfumes that last 12-24h on average" },
+    { name: "Clean and vegan-friendly formula safe for all skin types" },
+    { name: "Made in UAE with natural ingredients sourced from France" },
+    { name: "Try risk-free first, then decide with 30-day money back promise" },
   ];
   return (
     <section className={`relative lg:pb-0  ${isDarkMode ? 'bg-[#171717] duration-300' : 'bg-[#F4F4F4] duration-300'} `}>
      <div className={`lg:block hidden`}>
-     <div className={` w-[100%] mx-auto flex lg:flex-row flex-col items-center gap-x-[95px] ${isDarkMode ? 'bg-[#171717] duration-300' : 'bg-[#F4F4F4] duration-300'} `}>
-        <div className="lg:w-1/2 2xl:pl-[120px] lg:pl-[60px] lg:py-[40px] ">
+     <div className={` w-[100%] mx-auto flex lg:flex-row flex-col md:items-start 2xl:gap-x-[95px] ${isDarkMode ? 'bg-[#171717] duration-300' : 'bg-[#F4F4F4] duration-300'} `}>
+        <div className="lg:w-1/2 2xl:pl-[5%] lg:pl-[60px] lg:py-[40px] ">
           <div className=" ">
-          <h1 className={`${isDarkMode ? 'lg:text-white duration-300' : 'lg:text-[color:var(--Brand,#28282A)] duration-300'} 2xl:text-[58px] lg:text-[42px] text-white lg:w-[450px] 2xl:w-auto text-center lg:text-start not-italic font-bold leading-[130%] uppercase`}>
+          <h1 className={`${isDarkMode ? 'lg:text-white duration-300' : 'lg:text-[color:var(--Brand,#28282A)] duration-300'} 2xl:text-[58px] lg:text-[38px] text-white lg:w-[450px] 2xl:w-auto text-center lg:text-start not-italic font-bold leading-[130%] uppercase`}>
           Your SET for<br className="lg:block hidden" />daily confidence 
           </h1>
-          <p className={`${isDarkMode ? 'lg:text-[#FFFFFFCC] duration-300' : 'lg:text-[color:var(--brand-70,rgba(40,40,42,0.70))] duration-300'} lg:text-[20px] 2xl:text-[28px] text-[16px] text-[#FFFFFFCC] text-center lg:w-auto lg:text-start not-italic font-medium leading-[normal] mt-[20px] lg:mx-0 mx-auto`}>Take on the world with scents that put you in the spotlight.</p>
+          <p className={`${isDarkMode ? 'lg:text-[rgba(255,255,255,0.8)] duration-300' : 'lg:text-[color:var(--brand-70,rgba(40,40,42,0.70))] duration-300'} lg:text-[18px]  2xl:text-[24px] text-[16px] text-[#FFFFFFCC] text-center lg:w-auto lg:text-start not-italic font-medium leading-[normal] mt-[20px] lg:mx-0 mx-auto`}>Take on the world with scents that put you in the spotlight.</p>
          </div>
 <div className={`lg:w-auto w-[90%] lg:static lg:visible invisible  ${isDarkMode ? 'bg-[#171717] duration-300' : 'bg-[#F4F4F4] duration-300'}`}>
           <div className={`inline-flex cursor-auto flex-col items-start gap-5 p-5 rounded-md border  border-solid lg:mt-[30px] 2xl:mt-[40px] ${isDarkMode ? 'border-[#fff] duration-300' : 'border-[color:var(--Brand,#28282A)] duration-300'} `}>
@@ -35,7 +37,7 @@ const Hero = () => {
                  <div className="flex items-center gap-2.5">
                  {/* <Image src={checkmart} alt="Checkmark Icon" /> */}
                   <CheckMart color={isDarkMode ? 'white' : '#28282A'} />
-                 <span key={list.name} className={` lg:text-[16px] 2xl:text-lg text-[12px] text-start not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white' : 'text-[color:var(--Brand,#28282A)]'} `}>{list.name}</span>
+                 <span key={list.name} className={` lg:text-[14px] 2xl:text-lg text-[12px] text-start not-italic font-normal leading-[normal] ${isDarkMode ? 'text-white' : 'text-[color:var(--Brand,#28282A)]'} `}>{list.name}</span>
                  </div>
               ))}
                 
@@ -52,8 +54,8 @@ const Hero = () => {
             </div>
           </div>
      
-        <div className={`lg:w-[50%]  ${isDarkMode ? 'lg:border-white' : 'lg:border-[#171717]'} `}>
-          <Image className=' 2xl:h-[724px] lg:h-[593px]  object-cover 2xl:w-full hidden lg:block' src={banner} alt='Hero'  />
+        <div className={`lg:w-[55%] h-full 2xl:w-[60%]  ${isDarkMode ? 'lg:border-white' : 'lg:border-[#171717]'} `}>
+          <Image className=' h-screen object-cover 2xl:w-full hidden lg:block' src={banner} alt='Hero'  />
           </div>
             
         </div>

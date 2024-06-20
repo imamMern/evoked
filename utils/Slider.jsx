@@ -9,7 +9,7 @@ import video from '@/public/assets/video.png'
 import videoDark from '@/public/assets/dark-video.png'
 import Image from 'next/image';
 import { useDarkMode } from './DarkModeContext';
-
+import { Autoplay } from 'swiper/modules';
 const Slider = () => {
     const { isDarkMode, toggleDarkMode } = useDarkMode();
     const Links = [
@@ -25,6 +25,11 @@ const Slider = () => {
         
         slidesPerView={2}
         spaceBetween={20}
+        modules={[Autoplay]}
+        autoplay={{
+          delay: 1000,
+          disableOnInteraction: false,
+        }}
             loop={true}
             allowTouchMove={true}
             scrollbar={{ draggable: true }}

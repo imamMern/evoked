@@ -88,32 +88,32 @@ useEffect(() => {
 function getInitialDeviceSize() {
   const innerWidth = window.innerWidth;
   if (innerWidth <= 480) { // Mobile
-    return 4200;
+    return 1200;
   } else if (innerWidth <= 768) { // Small tablet
-    return 4400;
+    return 1400;
   } else if (innerWidth <= 1024) { // Large tablet
-    return 4730;
+    return 1730;
   }
   else if (innerWidth <= 1224) { // Large Laptop or desktop
-    return 4750;
+    return 1750;
   }
   else if (innerWidth <= 1324) { // Large Laptop or desktop
-    return 4950;
+    return 1950;
   }
   else if (innerWidth <= 1424) { // Large Laptop or desktop
-    return 5350;
+    return 2150;
   }
   else if (innerWidth <= 1524) { // Large Laptop or desktop
-    return 5450;
+    return 2250;
   }
   else if (innerWidth <= 1624) { // Large Laptop or desktop
-    return 5650;
+    return 2350;
   }
   else if (innerWidth <= 1724) { // Large Laptop or desktop
-    return 5650;
+    return 2350;
   }
    else { // PC or larger devices
-    return 5850;
+    return 2450;
   }
 }
 
@@ -134,7 +134,7 @@ function getInitialDeviceSize() {
                 isDarkMode ? "text-white" : "text-[color:var(--Brand,#28282A)] "
               }`}
             >
-              Select how many BOTTLES
+              Pick your scents
             </h2>
             <span
               className={`text-center text-[14px] 2xl:text-2xl lg:text-[22px] not-italic font-medium leading-[160%] ${

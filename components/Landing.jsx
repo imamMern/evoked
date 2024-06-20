@@ -22,13 +22,13 @@ const Landing = ({products, collections}) => {
         {/* <BodyComponent/> */}
           <Navbar />
         <Hero />
+        <PricingProvider>
+        <Pricing products={products} collections={collections} />
+        </PricingProvider>
         <Carousel />
         <EvokedBrand />
         <ThreeMore/>
         <OtherBrands />
-        <PricingProvider>
-        <Pricing products={products} collections={collections} />
-        </PricingProvider>
         <Review/>
         <Story/>
           <Accordion />

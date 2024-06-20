@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import logo from '@/public/assets/logo.svg'
+import logo from '@/public/assets/whiteLogo.svg'
 import Image from 'next/image'
 import { useDarkMode } from '@/utils/DarkModeContext'
 import Link from 'next/link'
